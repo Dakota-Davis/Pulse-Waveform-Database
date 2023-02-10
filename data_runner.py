@@ -83,232 +83,12 @@ va2 = -1
 energy_array = []
 energy2_array = []
 
-c1 = 'blue'
+c1 = 'lightblue'
 c2 = 'red'
-ac1 = 'black'
-ac2 = 'lightgreen'
+ac1 = 'orangered'
+ac2 = 'purple'
 
 if args.number_of_scintillators[0] == 1 and args.set_used[0] == 1:
-	for input_file in range(len(args.first_input_data)):				
-
-	##########Set 1 manipulation
-
-		
-		path = '{}'.format(args.first_input_data[input_file])		#Opens file to be read
-		f = open(path)
-		data = f.readlines()
-
-		voltage = []
-		time = []
-		for line in data:						#Gives time and voltage arrays
-			split_line = line.split(';')
-			if len(split_line) > 1:
-				time.append(float(split_line[0]))
-				voltage.append(float(split_line[1]))
-	
-		psd = []							#Gets psd from its saved spot in the time array
-		energy = []							#Gets energy from voltage array
-		psd.append(float(time[0]))
-		#print(psd)
-		#print(time[0])
-		energy.append(float(voltage[0]))
-		#print(energy)
-		time = np.delete(time, 0, 0)					#Removes psd and energy from arrays for pure data
-		voltage = np.delete(voltage, 0, 0)
-
-
-		for b in range(len(voltage)):				#Automates size of varray for Average voltage values (Avarray)
-			if va < 0:
-				varray.append(voltage[b])
-			if va >= 0:
-				varray[b] += voltage[b]
-
-		psdarray.append(psd[0])
-		
-
-		##########Graphing/Plots	
-		if showall is True:					#Plots individual waveforms if condition is met
-			
-			plt.subplot(1,4,1)
-
-			plt.plot(time, voltage, alpha=0.1)
-
-			plt.subplot(1,4,2)
-			Expo_Fit(voltage, time, 1, c1)
-
-		plt.subplot(1,4,3)
-		plt.hist(energy, bins=100, range=[hist_minxlim,hist_maxxlim], alpha=1, label='Scint 1', color=c1)
-		
-		plt.subplot(1,4,4)
-		plt.scatter(energy,psd, color=c1, label='Scint 1')
-
-
-		va +=1
-
-	Avarray = []
-	Current = []
-	for val in varray:						#Averages voltage data for average curve
-		Avarray.append(val/len(args.first_input_data))
-		Current.append(val/50)					#50 comes from the 50 ohm resistor used in data collection
-
-	##########Returns/Printing for Set 1
-
-	#print(psd)				      #returns psd array (strings) -- use flopsd for returning array of floats
-	print("Super-Set PSD Average: " ,Average(psdarray)) #returns PSD average for cut 1
-
-	print("Area under the curve of Super-Set 1: " ,Area_under_Curve(Current, time), "Coulombs")
-
-	print("Rise Time for Super-Set 1: ",Rise_Time(Avarray, time), " seconds")	#returns rise time (between 5% and peak voltage)
-	print("Fall Time for Super-Set 1: ",Fall_Time2(Avarray, time), " seconds")
-
-	print("The T90 for Super-Set 1: ",T90(Avarray, time)[0], "seconds")
-	#print("T90 Check: ",t90(Avarray,time))
-
-	##########Graphing for Set 1
-
-	plt.subplot(1,4,1)						#Plots average voltage v. time
-	plt.plot(time, Avarray, label='Super-Set Average', color=ac1)
-	plt.xlabel(r"Time [s]")
-	plt.ylabel("Amplitude [V]")
-	plt.title("Amplitude v. Time")
-
-				##These Plot Markers for the T90 of the averaged curve##
-	plt.plot(time[T90(Avarray, time)[1]], Avarray[T90(Avarray, time)[1]], marker=">", markersize=7, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set T90 Start")
-	plt.plot(time[T90(Avarray, time)[2]], Avarray[T90(Avarray, time)[2]], marker="<", markersize=7, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set T90 End")
-
-	plt.legend()
-
-	plt.subplot(1,4,2)						#Plots the Exponential Decay of the curve
-	Expo_Fit(Avarray, time, 1, ac1)
-	plt.xlabel("Time [s]")
-	plt.ylabel("Amplitude [V]")
-	plt.title("Set Decay Rates")
-		
-	plt.subplot(1,4,3)						#Adds labels to the energy histogram
-	plt.xlabel("Energy [keV]")
-	plt.ylabel("Energy Frequency")
-	plt.title("Histogram of Energy")
-
-	plt.subplot(1,4,4)						#Adds labels to psd v. energy
-	plt.xlabel("Energy [keV]")
-	plt.ylabel("PSD")
-	plt.title("PSD v. Energy")
-
-	plt.show()
-
-#####################################################################
-	#Below does same as above but for the second set in the event that 2 sets are inputed but 1 is wanted for viewing
-#####################################################################
-elif args.number_of_scintillators[0] == 1 and args.set_used[0] == 2:     
-##########Set 2 manipulation
-	for input_file in range(len(args.second_input_data)):	
-
-		path = '{}'.format(args.second_input_data[input_file])
-		f = open(path)
-		data2 = f.readlines()
-
-		voltage2 = []
-		time2 = []
-		for line in data2:
-			split_line = line.split(';')
-			if len(split_line) > 1:
-				time2.append(float(split_line[0]))
-				voltage2.append(float(split_line[1]))
-
-		psd2 = []
-		energy2 = []
-		psd2.append(float(time2[0]))
-		#print(psd2)
-		#print(time2[0])
-		energy2.append(float(voltage2[0]))
-		#print(energy2)
-		time2 = np.delete(time2, 0, 0)
-		#print(time[0])
-		voltage2 = np.delete(voltage2, 0, 0)
-
-
-		for b2 in range(len(voltage2)):				#Automates size of varray for Average voltage values (Avarray)
-			if va2 < 0:
-				varray2.append(voltage2[b2])
-			if va2 >= 0:
-				varray2[b2] += voltage2[b2]
-
-		psdarray2.append(psd2[0])
-
-		##########Graphing/Plots
-		if showall is True:
-			
-			plt.subplot(1,4,1)
-
-			plt.plot(time2, voltage2, alpha=0.1)
-
-			plt.subplot(1,4,2)
-			Expo_Fit(voltage2, time2, 1, c2)
-
-		plt.subplot(1,4,3)
-		plt.hist(energy2, bins=100, range=[hist_minxlim,hist_maxxlim], alpha=1, label='Scint 2', color=c2)
-		
-		plt.subplot(1,4,4)
-		plt.scatter(energy2,psd2, color=c2, label='Scint 2')
-
-
-		va2 +=1
-
-	Avarray2 = []
-	Current2 = []
-	for val in varray2:
-		Avarray2.append(val/len(args.second_input_data))
-		Current2.append(val/50)
-	
-	##########Returns/Printing for Set 2
-
-	#print(psd2)				      #returns psd array (strings) -- use flopsd for returning array of floats
-	print("Super-Set 2 PSD Average: " ,Average(psdarray2)) #returns PSD average for cut 1
-
-	print("Area under the curve of Super-Set 2: " ,Area_under_Curve(Current2, time2), "Coulombs")
-
-	print("Rise Time for Super-Set 2: ",Rise_Time(Avarray2, time2), " seconds")	#returns rise time (between 5% and peak voltage)
-	print("Fall Time for Super-Set 2: ",Fall_Time2(Avarray2, time2), " seconds")
-
-	print("The T90 for Super-Set 2: ",T90(Avarray2, time2)[0], "seconds")
-	#print("T90 Check: ",t90(Avarray,time))
-	
-	##########Graphing for Set 2
-
-	plt.subplot(1,4,1)
-	plt.plot(time2, Avarray2, label='Super-Set 2 Average', color=ac1)
-	plt.xlabel(r"Time [s]")
-	plt.ylabel("Amplitude [V]")
-	plt.title("Amplitude v. Time")
-
-	plt.plot(time2[T90(Avarray2, time2)[1]], Avarray2[T90(Avarray2, time2)[1]], marker=">", markersize=7, markeredgecolor="black", markerfacecolor="orange", label="Super-Set 2 T90 Start")
-	plt.plot(time2[T90(Avarray2, time2)[2]], Avarray2[T90(Avarray2, time2)[2]], marker="<", markersize=7, markeredgecolor="black", markerfacecolor="orange", label="Super-Set 2 T90 End")
-
-	plt.legend()
-
-	plt.subplot(1,4,2)
-	Expo_Fit(Avarray2, time2, 2, ac1)
-	plt.xlabel("Time [s]")
-	plt.ylabel("Amplitude [V]")
-	plt.title("Set Decay Rates")
-
-	plt.subplot(1,4,3)
-	plt.xlabel("Energy [keV]")
-	plt.ylabel("Energy Frequency")
-	plt.title("Histogram of Energy")
-
-	plt.subplot(1,4,4)
-	plt.xlabel("Energy [keV]")
-	plt.ylabel("PSD")
-	plt.title("PSD v. Energy")
-
-	plt.show()
-
-##################################################################### 
-	#Below allows for both waveform super-sets to be run and plotted agaisnt each other, runs same as above
-##################################################################### 
-elif args.number_of_scintillators[0] == 2:
-	##########Set 1 manipulation
 	for input_file in range(len(args.first_input_data)):	
 
 		path = '{}'.format(args.first_input_data[input_file])
@@ -344,12 +124,12 @@ elif args.number_of_scintillators[0] == 2:
 		##########Graphing/Plots
 		if showall is True:
 			
-			plt.subplot(1,4,1)
+			#plt.subplot(1,4,1)
 
 			plt.plot(time, voltage, alpha=0.1, color=c1)
 			
-			plt.subplot(1,4,2)
-			Expo_Fit(voltage, time, 1, c1)
+			#plt.subplot(1,4,2)
+			#Expo_Fit(voltage, time, 1, c1)
 		
 		#plt.subplot(1,4,4)
 		#plt.scatter(energy,psd, color=c1, label='Scint 1')
@@ -362,9 +142,62 @@ elif args.number_of_scintillators[0] == 2:
 		Avarray.append(val/len(args.first_input_data))
 		Current.append(val/50)		
 
-	#print(va)	
+	d = np.array([time,Avarray])
+	d = d.T
+	np.savetxt('data/hamamatsu_R12699/nai_tl/356kev_Average.txt', d, delimiter=';')
 
-	##########Set 2 manipulation
+	##########Returns/Printing for Set 1
+
+	print("Super-Set PSD Average: " ,Average(psdarray)) #returns PSD average for cut 1
+
+	print("Area under the curve of Super-Set 1: " ,Area_under_Curve(Current, time), "Coulombs")
+
+	print("Rise Time for Super-Set 1: ",Rise_Time(Avarray, time), " seconds")	#returns rise time (between 5% and peak voltage)
+	print("Fall Time for Super-Set 1: ",Fall_Time(Avarray, time), " seconds")
+
+	print("The T90 for Super-Set 1: ",T90(Avarray, time)[0], "seconds")
+	#print("T90 Check: ",t90(Avarray,time))
+	#print("Original T90 Method: ",t_90(Avarray, time)[0])
+
+	##########Graphing for Set 1
+
+	#plt.subplot(1,4,1)						#Plots average voltage v. time
+	plt.plot(time, Avarray, label='CsI(Na) Average Curve [356keV]')#,label='PSD Average: %.6e\nAuC: %.6e\nRise Time: %.6e\nFall Time: %.6e\nAverage T90: %.4e'%(Average(psdarray),Area_under_Curve(Current, time),Rise_Time(Avarray, time),Fall_Time(Avarray, time),T90(Avarray, time)[0]))
+	plt.xlabel(r"Time [s]")
+	plt.ylabel("Amplitude [V]")
+	plt.title("Amplitude v. Time")
+
+				##These Plot Markers for the T90 of the averaged curve##
+	plt.plot(time[T90(Avarray, time)[1]], Avarray[T90(Avarray, time)[1]], marker=">", markersize=7, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set T90 Start")
+	plt.plot(time[T90(Avarray, time)[2]], Avarray[T90(Avarray, time)[2]], marker="<", markersize=7, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set T90 End")
+
+	plt.legend()
+
+	#plt.subplot(1,4,2)						#Plots the Exponential Decay of the curve
+	#Expo_Fit(Avarray, time, 1, ac1)
+	#plt.xlabel("Time [s]")
+	#plt.ylabel("Amplitude [V]")
+	#plt.title("Set Decay Rates")
+		
+	#plt.subplot(1,4,3)						#Adds labels to the energy histogram
+	#plt.hist(energy_array, bins=100, range=[hist_minxlim,hist_maxxlim], label='Scint 1', color=c1)
+	#plt.xlabel("Energy")
+	#plt.ylabel("Energy Frequency")
+	#plt.title("Histogram of Energy")
+
+	#plt.subplot(1,4,4)						#Adds labels to psd v. energy
+	#plt.scatter(energy_array, psdarray, s=2, color=c1)
+	#plt.xlabel("Energy")
+	#plt.ylabel("PSD")
+	#plt.title("PSD v. Energy")
+
+	plt.show()
+
+#####################################################################
+	#Below does same as above but for the second set in the event that 2 sets are inputed but 1 is wanted for viewing
+#####################################################################
+elif args.number_of_scintillators[0] == 1 and args.set_used[0] == 2:     
+##########Set 2 manipulation
 	
 	for input_file in range(len(args.second_input_data)):	
 
@@ -420,6 +253,169 @@ elif args.number_of_scintillators[0] == 2:
 		Current2.append(val/50)		
 	
 	#print(va2)
+	
+	##########Returns/Printing for Set 2
+
+	print("Super-Set 2 PSD Average: " ,Average(psdarray2)) #returns PSD average for cut 2
+
+	print("Area under the curve of Super-Set 2: " ,Area_under_Curve(Current2, time2), "Coulombs")
+
+	print("Rise Time for Super-Set 2: ",Rise_Time(Avarray2, time2), " seconds")	#returns rise time (between 5% and peak voltage)
+	print("Fall Time for Super-Set 2: ",Fall_Time(Avarray2, time2), " seconds")
+
+	print("The T90 for Super-Set 2: ",T90(Avarray2, time2)[0], "seconds")
+	#print("T90 Check: ",t90(Avarray2,time2))
+	#print("Original T90 Method: ",t_90(Avarray2, time2)[0])
+	
+	##########Graphing for Set 2
+
+	plt.subplot(1,4,1)
+	plt.plot(time2, Avarray2, label='Super-Set 2 Average', color=ac1)
+	plt.xlabel(r"Time [s]")
+	plt.ylabel("Amplitude [V]")
+	plt.title("Amplitude v. Time")
+
+	plt.plot(time2[T90(Avarray2, time2)[1]], Avarray2[T90(Avarray2, time2)[1]], marker=">", markersize=7, markeredgecolor="black", markerfacecolor="orange", label="Super-Set 2 T90 Start")
+	plt.plot(time2[T90(Avarray2, time2)[2]], Avarray2[T90(Avarray2, time2)[2]], marker="<", markersize=7, markeredgecolor="black", markerfacecolor="orange", label="Super-Set 2 T90 End")
+
+	plt.legend()
+
+	plt.subplot(1,4,2)
+	Expo_Fit(Avarray2, time2, 2, ac1)
+	plt.xlabel("Time [s]")
+	plt.ylabel("Amplitude")
+	plt.title("Set Decay Rates")
+
+	plt.subplot(1,4,3)
+	plt.xlabel("Energy [keV]")
+	plt.hist(energy2_array, bins=100, range=[hist_minxlim,hist_maxxlim], label='Scint 2', color=c2)
+	plt.ylabel("Energy Frequency")
+	plt.title("Histogram of Energy")
+
+	plt.subplot(1,4,4)
+	plt.scatter(energy2_array, psdarray2, s=2, color=c2)
+	plt.xlabel("Energy")
+	plt.ylabel("PSD")
+	plt.title("PSD v. Energy")
+
+	plt.show()
+
+##################################################################### 
+	#Below allows for both waveform super-sets to be run and plotted agaisnt each other, runs same as above
+##################################################################### 
+elif args.number_of_scintillators[0] == 2:
+	##########Set 1 manipulation
+	for input_file in range(len(args.first_input_data)):	
+
+		path = '{}'.format(args.first_input_data[input_file])
+		f = open(path)
+		data = f.readlines()
+
+		voltage = []
+		time = []
+		for line in data:
+			split_line = line.split(';')
+			if len(split_line) > 1:
+				time.append(float(split_line[0]) / 1e-6)
+				voltage.append(float(split_line[1]))
+
+		#psd = []
+		#energy = []
+		psd = (float(time[0]))
+		energy = (float(voltage[0]))
+		time = np.delete(time, 0, 0)
+		voltage = np.delete(voltage, 0, 0)
+
+		#print("PSD: ",psd," ENERGY: ",energy)
+
+		for b in range(len(voltage)):				#Automates size of varray for Average voltage values (Avarray)
+			if va < 0:
+				varray.append(voltage[b])
+			if va >= 0:
+				varray[b] += voltage[b]
+		energy_array.append(energy)			#Appends energy to array of all energies
+
+		psdarray.append(psd)
+
+		##########Graphing/Plots
+		if showall is True:
+			
+			plt.subplot(1,4,1)
+
+			plt.plot(time, voltage, alpha=0.1, color=c1)
+			
+			#plt.subplot(1,4,2)
+			#Expo_Fit(voltage, time, 1, c1)
+		
+		#plt.subplot(1,4,4)
+		#plt.scatter(energy,psd, color=c1, label='Scint 1')
+
+		va +=1
+
+	Avarray = []
+	Current = []
+	for val in varray:
+		Avarray.append(val/len(args.first_input_data))
+		Current.append(val/50)		
+
+	#print(va)	
+
+	##########Set 2 manipulation
+	
+	for input_file in range(len(args.second_input_data)):	
+
+		path = '{}'.format(args.second_input_data[input_file])
+		f = open(path)
+		data2 = f.readlines()
+
+		voltage2 = []
+		time2 = []
+		for line in data2:
+			split_line = line.split(';')
+			if len(split_line) > 1:
+				time2.append(float(split_line[0]) / 1e-6)
+				voltage2.append(float(split_line[1]))
+
+		#psd2 = []
+		#energy2 = []
+		psd2 = (float(time2[0]))
+		energy2 = (float(voltage2[0]))
+		time2 = np.delete(time2, 0, 0)
+		voltage2 = np.delete(voltage2, 0, 0)
+
+		#print("PSD: ",psd2," ENERGY: ",energy2)
+
+		for b2 in range(len(voltage2)):				
+			if va2 < 0:
+				varray2.append(voltage2[b2])
+			if va2 >= 0:
+				varray2[b2] += voltage2[b2]
+		energy2_array.append(energy2)
+
+		psdarray2.append(psd2)
+
+		##########Graphing/Plots
+		if showall is True:
+			
+			plt.subplot(1,4,1)
+
+			plt.plot(time2, voltage2, alpha=0.1, color=c2)
+			
+			#plt.subplot(1,4,2)
+			#Expo_Fit(voltage2, time2, 1, c2)
+	
+		#plt.subplot(1,4,4)
+		#plt.scatter(energy2,psd2, color=c2, label='Scint 2')
+
+		va2 +=1
+
+	Avarray2 = []
+	Current2 = []
+	for val in varray2:
+		Avarray2.append(val/len(args.second_input_data))
+		Current2.append(val/50)		
+	
+	#print(va2)
 
 	##########Returns/Printing for Set 1
 
@@ -449,45 +445,47 @@ elif args.number_of_scintillators[0] == 2:
 						
 	##########Graphing for Set 1
 
-	plt.subplot(1,4,1)
-	plt.plot(time, Avarray, label='Super-Set Average', color=ac1)
-	plt.plot(time2, Avarray2, label='Super-Set 2 Average', color=ac2)
-	plt.xlabel(r"Time [s]")
-	plt.ylabel("Amplitude [V]")
-	plt.title("Amplitude v. Time")
+	#plt.subplot(1,4,1)
+	plt.plot(time, Avarray, label='NaI(Tl) Average Curve [356keV]', linewidth=4)
+	plt.plot(time2, Avarray2, label='CsI(Na) Average Curve [356keV]', color=ac1, linewidth=4)
+	plt.xlabel(r"Time [$\mu$s]", fontsize=40)
+	plt.ylabel("Amplitude [V]", fontsize=40)
+	plt.tick_params(axis='both', which='major', labelsize=30)
+	plt.xlim(0, 3)
+	plt.title("Amplitude v. Time", fontsize=40)
 
-	plt.plot(time[T90(Avarray, time)[1]], Avarray[T90(Avarray, time)[1]], marker=">", markersize=7, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set T90 Start")
-	plt.plot(time[T90(Avarray, time)[2]], Avarray[T90(Avarray, time)[2]], marker="<", markersize=7, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set T90 End")
-	plt.plot(time2[T90(Avarray2, time2)[1]], Avarray2[T90(Avarray2, time2)[1]], marker=">", markersize=7, markeredgecolor="black", markerfacecolor="orange", label="Super-Set 2 T90 Start")
-	plt.plot(time2[T90(Avarray2, time2)[2]], Avarray2[T90(Avarray2, time2)[2]], marker="<", markersize=7, markeredgecolor="black", markerfacecolor="orange", label="Super-Set 2 T90 End")
+	plt.plot(time[T90(Avarray, time)[1]], Avarray[T90(Avarray, time)[1]], marker=">", markersize=15, markeredgecolor="black", markerfacecolor="yellow", label="NaI(Tl) T90 Start")
+	plt.plot(time[T90(Avarray, time)[2]], Avarray[T90(Avarray, time)[2]], marker="<", markersize=15, markeredgecolor="black", markerfacecolor="yellow", label="NaI(Tl) T90 End")
+	plt.plot(time2[T90(Avarray2, time2)[1]], Avarray2[T90(Avarray2, time2)[1]], marker=">", markersize=15, markeredgecolor="black", markerfacecolor="black", label="CsI(Na) T90 Start")
+	plt.plot(time2[T90(Avarray2, time2)[2]], Avarray2[T90(Avarray2, time2)[2]], marker="<", markersize=15, markeredgecolor="black", markerfacecolor="black", label="CsI(Na) T90 End")
 
-	plt.legend()
+	plt.legend(prop={'size': 20})
 
-	plt.subplot(1,4,2)
-	Expo_Fit(Avarray, time, 1, ac1)
-	Expo_Fit(Avarray2, time2, 2, ac2)
-	plt.xlabel("Time [s]")
-	plt.ylabel("Amplitude [V]")
-	plt.title("Set Decay Rates")
+	#plt.subplot(1,4,2)
+	#Expo_Fit(Avarray, time, 1, ac1)
+	#Expo_Fit(Avarray2, time2, 2, ac2)
+	#plt.xlabel("Time [s]")
+	#plt.ylabel("Amplitude [V]")
+	#plt.title("Set Decay Rates")
 
 	#print("ENERGY: ",energy_array," LENGHT: ",len(energy_array))
 	#print("ENERGY: ",energy2_array," LENGHT: ",len(energy2_array))
 	#print("PSD: ",psdarray)
 	#print("PSD: ",psdarray2)
 
-	plt.subplot(1,4,3)
-	plt.hist(energy_array, bins=100, range=[hist_minxlim,hist_maxxlim], label='Scint 1', color=c1)
-	plt.hist(energy2_array, bins=100, range=[hist_minxlim,hist_maxxlim], label='Scint 2', color=c2)
-	plt.xlabel("Energy [keV]")
-	plt.ylabel("Energy Frequency")
-	plt.title("Histogram of Energy")
+	#plt.subplot(1,4,3)
+	#plt.hist(energy_array, bins=100, range=[hist_minxlim,hist_maxxlim], label='Scint 1', color=c1)
+	#plt.hist(energy2_array, bins=100, range=[hist_minxlim,hist_maxxlim], label='Scint 2', color=c2)
+	#plt.xlabel("Energy")
+	#plt.ylabel("Energy Frequency")
+	#plt.title("Histogram of Energy")
 
-	plt.subplot(1,4,4)	
-	plt.scatter(energy_array, psdarray, s=2, color=c1)
-	plt.scatter(energy2_array, psdarray2, s=2, color=c2)
-	plt.xlabel("Energy [keV]")
-	plt.ylabel("PSD")
-	plt.title("PSD v. Energy")
+	#plt.subplot(1,4,4)	
+	#plt.scatter(energy_array, psdarray, s=2, color=c1)
+	#plt.scatter(energy2_array, psdarray2, s=2, color=c2)
+	#plt.xlabel("Energy")
+	#plt.ylabel("PSD")
+	#plt.title("PSD v. Energy")
 
 	plt.show()
 
