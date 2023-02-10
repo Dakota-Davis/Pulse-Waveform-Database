@@ -144,7 +144,7 @@ if args.number_of_scintillators[0] == 1 and args.set_used[0] == 1:
 
 	d = np.array([time,Avarray])
 	d = d.T
-	np.savetxt('data/hamamatsu_R12699/nai_tl/356kev_Average.txt', d, delimiter=';')
+	np.savetxt('data/{}/{}/Average_Waveform.txt'.format(args.pmt_used[0], args.scintillator_type[0]), d, delimiter=';')
 
 	##########Returns/Printing for Set 1
 
@@ -162,7 +162,7 @@ if args.number_of_scintillators[0] == 1 and args.set_used[0] == 1:
 	##########Graphing for Set 1
 
 	#plt.subplot(1,4,1)						#Plots average voltage v. time
-	plt.plot(time, Avarray, label='CsI(Na) Average Curve [356keV]')#,label='PSD Average: %.6e\nAuC: %.6e\nRise Time: %.6e\nFall Time: %.6e\nAverage T90: %.4e'%(Average(psdarray),Area_under_Curve(Current, time),Rise_Time(Avarray, time),Fall_Time(Avarray, time),T90(Avarray, time)[0]))
+	plt.plot(time, Avarray, label='Super-Set 1 Average Curve')#,label='PSD Average: %.6e\nAuC: %.6e\nRise Time: %.6e\nFall Time: %.6e\nAverage T90: %.4e'%(Average(psdarray),Area_under_Curve(Current, time),Rise_Time(Avarray, time),Fall_Time(Avarray, time),T90(Avarray, time)[0]))
 	plt.xlabel(r"Time [s]")
 	plt.ylabel("Amplitude [V]")
 	plt.title("Amplitude v. Time")
@@ -446,18 +446,18 @@ elif args.number_of_scintillators[0] == 2:
 	##########Graphing for Set 1
 
 	#plt.subplot(1,4,1)
-	plt.plot(time, Avarray, label='NaI(Tl) Average Curve [356keV]', linewidth=4)
-	plt.plot(time2, Avarray2, label='CsI(Na) Average Curve [356keV]', color=ac1, linewidth=4)
+	plt.plot(time, Avarray, label='Super-Set 1 Average Curve', linewidth=4)
+	plt.plot(time2, Avarray2, label='Super-Set 2 Average Curve', color=ac1, linewidth=4)
 	plt.xlabel(r"Time [$\mu$s]", fontsize=40)
 	plt.ylabel("Amplitude [V]", fontsize=40)
 	plt.tick_params(axis='both', which='major', labelsize=30)
 	plt.xlim(0, 3)
 	plt.title("Amplitude v. Time", fontsize=40)
 
-	plt.plot(time[T90(Avarray, time)[1]], Avarray[T90(Avarray, time)[1]], marker=">", markersize=15, markeredgecolor="black", markerfacecolor="yellow", label="NaI(Tl) T90 Start")
-	plt.plot(time[T90(Avarray, time)[2]], Avarray[T90(Avarray, time)[2]], marker="<", markersize=15, markeredgecolor="black", markerfacecolor="yellow", label="NaI(Tl) T90 End")
-	plt.plot(time2[T90(Avarray2, time2)[1]], Avarray2[T90(Avarray2, time2)[1]], marker=">", markersize=15, markeredgecolor="black", markerfacecolor="black", label="CsI(Na) T90 Start")
-	plt.plot(time2[T90(Avarray2, time2)[2]], Avarray2[T90(Avarray2, time2)[2]], marker="<", markersize=15, markeredgecolor="black", markerfacecolor="black", label="CsI(Na) T90 End")
+	plt.plot(time[T90(Avarray, time)[1]], Avarray[T90(Avarray, time)[1]], marker=">", markersize=15, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set 1 T90 Start")
+	plt.plot(time[T90(Avarray, time)[2]], Avarray[T90(Avarray, time)[2]], marker="<", markersize=15, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set 1 T90 End")
+	plt.plot(time2[T90(Avarray2, time2)[1]], Avarray2[T90(Avarray2, time2)[1]], marker=">", markersize=15, markeredgecolor="black", markerfacecolor="black", label="Super-Set 2 T90 Start")
+	plt.plot(time2[T90(Avarray2, time2)[2]], Avarray2[T90(Avarray2, time2)[2]], marker="<", markersize=15, markeredgecolor="black", markerfacecolor="black", label="Super-Set 2 T90 End")
 
 	plt.legend(prop={'size': 20})
 
