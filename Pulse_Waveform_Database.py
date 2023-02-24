@@ -48,7 +48,7 @@ if args.list_available_input_files:
         
     glob_paths = glob.glob("data/*/*/*")
     print("\nCurrently Saved Output Data Files:")
- 
+    
     for path in glob_paths:
         print(path)
         #print("Data File:",path.split('/')[-1])
