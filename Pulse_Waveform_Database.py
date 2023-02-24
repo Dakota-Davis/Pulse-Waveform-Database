@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from statistics import mode, StatisticsError
 from database_functions import *
+import glob
 
 from argparse import ArgumentParser
 
@@ -15,6 +16,7 @@ parser.add_argument('-s', '--source', type=str, nargs=1, help='The (gamma-ray) s
 parser.add_argument('-r', '--run-number', type=int, nargs=1, help='The file run number for saving purposes')
 parser.add_argument('-etarg', '--energy-target', type=int, nargs=2, help='The Energy Target Range in keV')
 parser.add_argument('-w', '--number_of_waveforms', type=int, nargs=1, help='The number of waveforms you would like saved')
+parser.add_argument('-list', '--list-available-input-files', action='store_true', help='Show available input and currently saved output files')
 
 args = parser.parse_args()
 
@@ -35,6 +37,21 @@ print("PSD Cut Range: ",args.psd_cut)
 print("Energy Target Range: ",args.energy_target)
 print("Gamma-ray Source: ",args.source)
 
+
+if args.list_available_input_files:
+    glob_paths = sorted(glob.glob("raw/*/*/*"))
+    print("\nAvailable Input Data:")
+
+    for path in glob_paths:
+        print("File Path:",path)
+        print("Data File:",path.split('/')[-1])
+        
+    glob_paths = glob.glob("data/*/*/*")
+    print("\nCurrently Saved Output Data Files:")
+ 
+    for path in glob_paths:
+        print(path)
+        #print("Data File:",path.split('/')[-1])
 
 if args.psd_cut is not None:        #temporary check to prevent running errors while writing new code 
     dir = "raw/%s/%s/" %(args.pmt[0], args.scintillator[0])
@@ -90,7 +107,7 @@ if args.psd_cut is not None:        #temporary check to prevent running errors w
         energy_short.append(ener_short)
 
         voltage = np.array(samples) * 2.0 / (2**14 -1)  #Conversion from 2V range using 14 bit digitizer
-        time = 4e-9 * np.arange(voltage.size)           #Times of each voltage sample are seperated by 4 nanoseconds #MOVE?#
+        time = 4e-9 * np.arange(voltage.size)           #Times of each voltage sample are seperated by 4 nanoseconds
 
         #baseline = voltage[:nbase].sum() / nbase
         #voltage -= baseline

@@ -12,7 +12,6 @@ parser.add_argument('-n', '--number-of-scintillators', type=int, nargs=1, help='
 parser.add_argument('-fid', '--first-input-data',type=str, nargs='+', help='The first set of data file(s) (which file you want to use)')
 parser.add_argument('-sid', '--second-input-data',type=str, nargs='+', help='The second set of data file(s) (which file you want to use)')
 parser.add_argument('-p', '--pmt-used', type=str, nargs='*', help='The PMT that was used for the data set')
-parser.add_argument('-s', '--set-used', type=int, nargs=1, help='Which scintillator set is desired/run')
 parser.add_argument('-t', '--scintillator-type', type=str, nargs='*', help='The scintillator that was used for the data set')
 parser.add_argument('-hc', '--histogram-xlimit', type=int, nargs=2, help='The minimum and maximum x-limit for the energy histogram')
 parser.add_argument('-show', '--shown_waveforms', type=str, nargs=1, help='To show or not to show all individual waveforms [ALL] or [NONE]')
@@ -30,13 +29,7 @@ if args.number_of_scintillators is not None:
 
 if args.histogram_xlimit is not None and len(args.histogram_xlimit) != 2:
 	parser.error('Incorrect number of histogram x-limits specified. . . Please specify 2 x-limits')
-
-if args.set_used is None and args.number_of_scintillators[0] != 2:
-	parser.error('No set specified. . . Please specify the desired set')
-if args.set_used is not None:	
-	if args.set_used[0] != 1 and args.set_used[0] != 2:
-		parser.error('Too many sets specified. . . Please specify a value between 1 and 2')
-
+    
 if args.number_of_scintillators[0] == 1:
 		if len(args.pmt_used) == 2:
 			parser.error('Too many PMTs specified. . . Only 1 scintillator specified, please match PMTs accordingly')
@@ -88,7 +81,7 @@ c2 = 'red'
 ac1 = 'orangered'
 ac2 = 'purple'
 
-if args.number_of_scintillators[0] == 1 and args.set_used[0] == 1:
+if args.number_of_scintillators[0] == 1:
 	for input_file in range(len(args.first_input_data)):	
 
 		path = '{}'.format(args.first_input_data[input_file])
@@ -193,117 +186,12 @@ if args.number_of_scintillators[0] == 1 and args.set_used[0] == 1:
 
 	plt.show()
 
-#####################################################################
-	#Below does same as above but for the second set in the event that 2 sets are inputed but 1 is wanted for viewing
-#####################################################################
-elif args.number_of_scintillators[0] == 1 and args.set_used[0] == 2:     
-##########Set 2 manipulation
-	
-	for input_file in range(len(args.second_input_data)):	
 
-		path = '{}'.format(args.second_input_data[input_file])
-		f = open(path)
-		data2 = f.readlines()
-
-		voltage2 = []
-		time2 = []
-		for line in data2:
-			split_line = line.split(';')
-			if len(split_line) > 1:
-				time2.append(float(split_line[0]))
-				voltage2.append(float(split_line[1]))
-
-		#psd2 = []
-		#energy2 = []
-		psd2 = (float(time2[0]))
-		energy2 = (float(voltage2[0]))
-		time2 = np.delete(time2, 0, 0)
-		voltage2 = np.delete(voltage2, 0, 0)
-
-		#print("PSD: ",psd2," ENERGY: ",energy2)
-
-		for b2 in range(len(voltage2)):				
-			if va2 < 0:
-				varray2.append(voltage2[b2])
-			if va2 >= 0:
-				varray2[b2] += voltage2[b2]
-		energy2_array.append(energy2)
-
-		psdarray2.append(psd2)
-
-		##########Graphing/Plots
-		if showall is True:
-			
-			plt.subplot(1,4,1)
-
-			plt.plot(time2, voltage2, alpha=0.1, color=c2)
-			
-			plt.subplot(1,4,2)
-			Expo_Fit(voltage2, time2, 1, c2)
-	
-		#plt.subplot(1,4,4)
-		#plt.scatter(energy2,psd2, color=c2, label='Scint 2')
-
-		va2 +=1
-
-	Avarray2 = []
-	Current2 = []
-	for val in varray2:
-		Avarray2.append(val/len(args.second_input_data))
-		Current2.append(val/50)		
-	
-	#print(va2)
-	
-	##########Returns/Printing for Set 2
-
-	print("Super-Set 2 PSD Average: " ,Average(psdarray2)) #returns PSD average for cut 2
-
-	print("Area under the curve of Super-Set 2: " ,Area_under_Curve(Current2, time2), "Coulombs")
-
-	print("Rise Time for Super-Set 2: ",Rise_Time(Avarray2, time2), " seconds")	#returns rise time (between 5% and peak voltage)
-	print("Fall Time for Super-Set 2: ",Fall_Time(Avarray2, time2), " seconds")
-
-	print("The T90 for Super-Set 2: ",T90(Avarray2, time2)[0], "seconds")
-	#print("T90 Check: ",t90(Avarray2,time2))
-	#print("Original T90 Method: ",t_90(Avarray2, time2)[0])
-	
-	##########Graphing for Set 2
-
-	plt.subplot(1,4,1)
-	plt.plot(time2, Avarray2, label='Super-Set 2 Average', color=ac1)
-	plt.xlabel(r"Time [s]")
-	plt.ylabel("Amplitude [V]")
-	plt.title("Amplitude v. Time")
-
-	plt.plot(time2[T90(Avarray2, time2)[1]], Avarray2[T90(Avarray2, time2)[1]], marker=">", markersize=7, markeredgecolor="black", markerfacecolor="orange", label="Super-Set 2 T90 Start")
-	plt.plot(time2[T90(Avarray2, time2)[2]], Avarray2[T90(Avarray2, time2)[2]], marker="<", markersize=7, markeredgecolor="black", markerfacecolor="orange", label="Super-Set 2 T90 End")
-
-	plt.legend()
-
-	plt.subplot(1,4,2)
-	Expo_Fit(Avarray2, time2, 2, ac1)
-	plt.xlabel("Time [s]")
-	plt.ylabel("Amplitude")
-	plt.title("Set Decay Rates")
-
-	plt.subplot(1,4,3)
-	plt.xlabel("Energy [keV]")
-	plt.hist(energy2_array, bins=100, range=[hist_minxlim,hist_maxxlim], label='Scint 2', color=c2)
-	plt.ylabel("Energy Frequency")
-	plt.title("Histogram of Energy")
-
-	plt.subplot(1,4,4)
-	plt.scatter(energy2_array, psdarray2, s=2, color=c2)
-	plt.xlabel("Energy")
-	plt.ylabel("PSD")
-	plt.title("PSD v. Energy")
-
-	plt.show()
-
+"""Doesn't appear to be working (returning incorrect values), would like to fix later though
 ##################################################################### 
 	#Below allows for both waveform super-sets to be run and plotted agaisnt each other, runs same as above
 ##################################################################### 
-elif args.number_of_scintillators[0] == 2:
+if args.number_of_scintillators[0] == 2:
 	##########Set 1 manipulation
 	for input_file in range(len(args.first_input_data)):	
 
@@ -488,4 +376,4 @@ elif args.number_of_scintillators[0] == 2:
 	#plt.title("PSD v. Energy")
 
 	plt.show()
-
+"""
