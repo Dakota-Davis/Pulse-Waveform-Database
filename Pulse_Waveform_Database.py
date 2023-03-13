@@ -1,4 +1,5 @@
 import os
+import struct
 import numpy as np
 import matplotlib.pyplot as plt
 from statistics import mode, StatisticsError
@@ -24,7 +25,7 @@ if args.add is not None:
     dir = "raw/%s/%s/" %(args.pmt[0], args.scintillator[0])  #directory name
     print(dir)
     print("\n")
-    path = os.path.join(dir, args.source[0] + ".csv")        #will use .bin files later
+    path = os.path.join(dir, args.source[0] + ".bin")        #will use .bin files later
     os.system("mkdir -p " + dir)                              #makes directory (if it doesn't exist)
     os.system("cp %s %s" %(args.add, path))                  #copies --add file to path
     os.system("ls raw/%s/%s/" %(args.pmt[0], args.scintillator[0]))     #lists file in directory (just to check)
@@ -55,37 +56,59 @@ if args.list_available_input_files:
 
 if args.psd_cut is not None:        #temporary check to prevent running errors while writing new code 
     dir = "raw/%s/%s/" %(args.pmt[0], args.scintillator[0])
-    path = os.path.join(dir, args.source[0] + ".csv")
+    path = os.path.join(dir, args.source[0] + ".bin")
     
 
     out_dir = "data/%s/%s/" %(args.pmt[0], args.scintillator[0])  #output directory name
     print(out_dir)
     print("\n")
-    path = os.path.join(dir, args.source[0] + ".csv")        #will use .bin files later
+    path = os.path.join(dir, args.source[0] + ".bin")        #will use .bin files later
     os.system("mkdir -p " + out_dir)            #makes the output directory
     
     
-    f = open(path) #Opens file
-    header = f.readline()
+    f = open(path, 'rb') #Opens file
+    #header = f.readline()
     
-    lines = f.readlines() #Reads file
+    #lines = f.readlines() #Reads file
     #print(lines)
-
-
+    i=0
+    energy_arr = []
+    es_arr = []
+    samp_arr = []
+    while True:
+        board = f.read(2)
+        i+=1
+        if len(board) == 0:
+            break
+        board = struct.unpack('H',board)[0]
+        channel = struct.unpack('H',f.read(2))[0]
+        timestamp = struct.unpack('Q',f.read(8))[0]
+        energy = struct.unpack('H',f.read(2))[0]
+        energy_short = struct.unpack('H',f.read(2))[0]
+        flags = struct.unpack('I',f.read(4))[0]
+        nsample = struct.unpack('I',f.read(4))[0]
+        samples = struct.unpack(nsample * 'H', f.read(2 * nsample))
+        
+        energy_arr.append(energy)
+        es_arr.append(energy_short)
+        samp_arr.append(samples)
+    f.close()
+    
     samps = 0 #Samples gathered
     numosamps = 0 #Number of Samples wanted
     if args.number_of_waveforms is None: #Automates samples gathered for saving later on
-        numosamps = len(lines)
+        numosamps = len(samp_arr)
     if args.number_of_waveforms is not None:
-        if args.number_of_waveforms[0] > len(lines) or args.number_of_waveforms[0] < 1:
-            parser.error('Specified Samples out of Range. . . Enter a number between 1 and the file length [{}]'.format(len(lines)))
-        if args.number_of_waveforms[0] <= len(lines):
+        if args.number_of_waveforms[0] > len(samp_arr) or args.number_of_waveforms[0] < 1:
+            parser.error('Specified Samples out of Range. . . Enter a number between 1 and the file length [{}]'.format(len(samp_arr)))
+        if args.number_of_waveforms[0] <= len(samp_arr):
             numosamps = args.number_of_waveforms[0]
 
     energy = [] #ENERGY ARRAY
     energy_short = []
     waveforms = []
 
+    waveforms = []
     #nbase = 100
     k = 0
     #######"Loading Bar"###################
@@ -96,9 +119,14 @@ if args.psd_cut is not None:        #temporary check to prevent running errors w
         pmtloc = args.pmt[0]
         scintloc = args.scintillator[0]
         vfilename = args.source[0] + '_data_run_' + str(args.run_number[0]) + "_" + args.scintillator[0] #File names
-
-
-
+    
+    for samp in samp_arr:
+        voltage = np.array(samp) * 2.0 / (2**14 -1)
+        time = 4e-9 * np.arange(voltage.size)   
+        
+        waveforms.append(voltage)
+        
+    """
     for line in lines:
         ener = int(line.split(";")[1])
         energy.append(ener)
@@ -114,21 +142,37 @@ if args.psd_cut is not None:        #temporary check to prevent running errors w
         waveforms.append(voltage)
 
     eMode = mode(energy) #Finds most common (highest) energy peak to scale against the most common source peaks
-
-    psd = np.zeros(len(lines), np.float64)
-
+    """
+    psd = np.zeros(len(energy_arr), np.float64)
+    #psd = np.zeros(len(lines), np.float64)
+    for e in range(len(energy_arr)):
+        if energy_arr[e] != 0:
+            psd[e] = float(energy_arr[e] - es_arr[e]) / float(energy_arr[e])
+    print(psd)
+    """"
     for e in range(len(energy)): #Scales energy and energy short to preset mode peak of source
 
         if energy[e] != 0: #Calculates PSD from energy long and short 
             psd[e] = float(energy[e] - energy_short[e]) / float(energy[e])
-
-    energy = np.array(energy)
+    """
+    energy = np.array(energy_arr)
     waveforms = np.array(waveforms)
-
+    
+    data = np.array([energy,psd])
+    print(data)
+    print("\n")
+    #f = open('data/{}/{}/ALLkev_psd_energy.bin' .format(pmtloc,scintloc), 'wb')
+    #for val in data:
+    #    sdat = struct.pack('I',val)
+    #    f.write(sdat)
+    #f.close()
+    #f = open('data/{}/{}/ALLkev_psd_energy.bin' .format(pmtloc,scintloc), 'wb')
+    data.astype('int16').tofile('data/{}/{}/ALLkev_psd_energy.bin' .format(pmtloc,scintloc))  #not sure about this way but it seems to work?
+    """
     data = np.array([energy,psd])
     data = data.T
     np.savetxt('data/{}/{}/ALLkev_psd_energy.txt' .format(pmtloc,scintloc), data, delimiter=';')
-
+    """
     ##########################
     #####ENERGY HIST HERE#####
     plt.subplot(1,2,1)
@@ -178,7 +222,16 @@ if args.psd_cut is not None:        #temporary check to prevent running errors w
         #print("energy is: ",energy[j])
         #print(waveform,waveform.shape)
 
-        data = np.array([time,waveform])
+        wdata = np.array([time,waveform])
+        print(wdata)
+        
+        f = open('data/{}/{}/test_{}' .format(pmtloc,scintloc,samps), 'wb')
+        #for val in wdata:
+        #    swdat = struct.pack('d',val)
+        #    f.write(swdat)
+        #f.close()
+        wdata.astype('float32').tofile('data/{}/{}/test_{}' .format(pmtloc,scintloc,samps)) #similar to above
+        """
         data = data.T
 
         with open('data/{}/{}/{}__{}.txt'.format(pmtloc,scintloc,vfilename,samps), 'w') as op:
@@ -188,13 +241,13 @@ if args.psd_cut is not None:        #temporary check to prevent running errors w
                 #print(sample)
                 op.write("%.6e;%.6e\n"%(time[sample],waveform[sample]))
             op.close()
-
+        """
         time = np.delete(time, 0, 0)
         waveform = np.delete(waveform, 0, 0)
         samps +=1
         k += 1
         #######"Loading Bar"###################
-        print("Set [",samps,"/",numosamps,"] of [",len(lines),"] . . . Compiled")
+        print("Set [",samps,"/",numosamps,"] of [",len(samp_arr),"] . . . Compiled")
         #######"Loading Bar"###################
     """
     plt.subplot(1,2,1)
