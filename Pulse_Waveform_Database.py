@@ -21,13 +21,13 @@ parser.add_argument('-list', '--list-available-input-files', action='store_true'
 args = parser.parse_args()
 
 if args.add is not None:
-    dir = "raw\%s\%s\" %(args.pmt[0], args.scintillator[0])  #directory name
+    dir = "raw/%s/%s/" %(args.pmt[0], args.scintillator[0])  #directory name
     print(dir)
     print("\n")
     path = os.path.join(dir, args.source[0] + ".csv")        #will use .bin files later
     os.system("mkdir -p " + dir)                              #makes directory (if it doesn't exist)
     os.system("cp %s %s" %(args.add, path))                  #copies --add file to path
-    os.system("ls raw\%s\%s\" %(args.pmt[0], args.scintillator[0]))     #lists file in directory (just to check)
+    os.system("ls raw/%s/%s/" %(args.pmt[0], args.scintillator[0]))     #lists file in directory (just to check)
 
 #Just some prints to help display what the user has specified    
 print("\nSelected File: ",args.add)
