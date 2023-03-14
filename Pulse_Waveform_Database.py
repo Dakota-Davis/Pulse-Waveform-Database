@@ -253,32 +253,31 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
 
 if args.plot is True and args.psd_cut is not None and args.energy_target is not None:
     
-    plt.subplot(1,2,1)
-    plt.hist(energy, bins=100, color='black')
-    plt.subplot(1,2,2) 
-    plt.hist(energy[psd_mask], bins=100, color='black')
-    plt.hist(energy[psd_mask & energy_mask], bins=100, color='orange')
-    plt.show()
-    """
-    plt.subplot(1,2,1)
-    plt.hist(energy[psd_mask], bins=100, color='black')#4096
-    #plt.xlim(0,args.energy_target[1])
-    plt.subplot(1,2,2) 
+    #plt.subplot(1,2,1)
+    _, bins, _ = plt.hist(energy, bins=100, color='black') #sets the standard bin count for all energy (for use in masked histogram)
+    #plt.subplot(1,2,2) 
+    #plt.hist(energy[psd_mask], bins=bins, color='black')
+    #plt.hist(energy[psd_mask & energy_mask], bins=bins, color='orange')
+    #plt.show()
+    plt.subplot(1,2,1) 
     plt.scatter(energy, psd, color='black')
     plt.ylim(0,1)
-    plt.subplot(1,2,1)
-    plt.hist(masked_energy, bins=100, color='orange')
+    plt.subplot(1,2,2)
+    plt.hist(energy[psd_mask], bins=bins, color='black')#4096
     #plt.xlim(0,args.energy_target[1])
     plt.xlabel("Energy")
     plt.ylabel("Counts")
-    plt.subplot(1,2,2)
+    plt.subplot(1,2,1)
     plt.scatter(masked_energy,masked_psd, color='orange')
     plt.xlabel("Energy")
     plt.ylabel("PSD")
+    plt.subplot(1,2,2)
+    plt.hist(masked_energy, bins=bins, color='orange')
+    #plt.xlim(0,args.energy_target[1])
+    
     d = np.array([masked_energy,masked_psd])
     d = d.T
     np.savetxt('data/{}/{}/MASKEDkev_psd_energy_{}.txt'.format(pmtloc,scintloc,args.output_scintillator[0]), d, delimiter=';')
     plt.show()
 
     #this is a tab test
-    """
