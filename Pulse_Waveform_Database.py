@@ -79,6 +79,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
     #lines = f.readlines() #Reads file
     #print(lines)
     i=0
+    z=0
     energy_arr = []
     es_arr = []
     samp_arr = []
@@ -99,6 +100,8 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         energy_arr.append(energy)
         es_arr.append(energy_short)
         samp_arr.append(samples)
+        z+=1
+        print(z)
     f.close()
     
     samps = 0 #Samples gathered
