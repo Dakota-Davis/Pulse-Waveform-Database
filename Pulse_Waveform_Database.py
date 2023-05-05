@@ -29,7 +29,7 @@ if args.add is not None:
     print("\n")
     path = os.path.join(dir, args.source[0] + ".bin")        #will use .bin files later
     os.system("mkdir -p " + dir)                              #makes directory (if it doesn't exist)
-    os.system("cp %s %s" %(args.add, path))                  #copies --add file to path
+    os.system("cp '%s' '%s'" %(args.add, path))                  #copies --add file to path
     os.system("ls raw/%s/%s/" %(args.pmt[0], args.scintillator[0]))     #lists file in directory (just to check)
 
 #Just some prints to help display what the user has specified    
@@ -305,4 +305,3 @@ if args.plot is True and args.psd_cut is not None and args.energy_target is not 
     np.savetxt('data/{}/{}/MASKEDkev_psd_energy_{}.txt'.format(pmtloc,scintloc,args.output_scintillator[0]), d, delimiter=';')
     plt.show()
 
-    #this is a tab test
