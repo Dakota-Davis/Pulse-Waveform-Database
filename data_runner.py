@@ -12,9 +12,9 @@ parser.add_argument('-n', '--number-of-scintillators', type=int, nargs=1, help='
 parser.add_argument('-fid', '--first-input-data',type=str, nargs='+', help='The first set of data file(s) (which file you want to use)')
 parser.add_argument('-sid', '--second-input-data',type=str, nargs='+', help='The second set of data file(s) (which file you want to use)')
 parser.add_argument('-p', '--pmt-used', type=str, nargs='*', help='The PMT that was used for the data set')
-parser.add_argument('-t', '--scintillator-type', type=str, nargs='*', help='The scintillator that was used for the data set')
+parser.add_argument('-scint', '--scintillator', type=str, nargs='*', help='The scintillator that was used for the data set')
 parser.add_argument('-hc', '--histogram-xlimit', type=int, nargs=2, help='The minimum and maximum x-limit for the energy histogram')
-parser.add_argument('-show', '--shown_waveforms', type=str, nargs=1, help='To show or not to show all individual waveforms [ALL] or [NONE]')
+parser.add_argument('-show', '--shown_waveforms', action='store_true', help='To show or not to show all individual waveforms [ALL] or [NONE]')
 
 args = parser.parse_args()
 
@@ -33,8 +33,8 @@ if args.histogram_xlimit is not None and len(args.histogram_xlimit) != 2:
 if args.number_of_scintillators[0] == 1:
 		if len(args.pmt_used) == 2:
 			parser.error('Too many PMTs specified. . . Only 1 scintillator specified, please match PMTs accordingly')
-		if len(args.scintillator_type) == 2:
-			parser.error('Too many scintillator types specified. . . Only 1 scintillator specified, please match PMTs accordingly')
+		if len(args.scintillator) == 2:
+			parser.error('Too many scintillators specified. . . Only 1 scintillator specified, please match PMTs accordingly')
 
 if args.pmt_used is None:
 	parser.error('No PMT specified. . . Please specify the PMT(s) used')
@@ -42,10 +42,10 @@ if args.pmt_used is not None:
 		if len(args.pmt_used) not in (1,2):
 			parser.error('Too many PMTs specified. . . Please specify a value between 1 and 2')
 
-if args.scintillator_type is None:
-	parser.error('No scintillator(s) specified. . . Please specify the type of scintillator(s) used')
-if args.scintillator_type is not None:
-		if len(args.scintillator_type) not in (1,2):
+if args.scintillator is None:
+	parser.error('No scintillator(s) specified. . . Please specify the scintillator(s) used')
+if args.scintillator is not None:
+		if len(args.scintillator) not in (1,2):
 			parser.error('Too many scintillators specified. . . Please specify a value between 1 and 2')
 
 if args.histogram_xlimit is None:			#Sets energy histogram limits
@@ -56,15 +56,15 @@ if args.histogram_xlimit is not None and len(args.histogram_xlimit) == 2:
 	hist_maxxlim = args.histogram_xlimit[1]
 
 showall = True
-if args.shown_waveforms[0] is None:
+if args.shown_waveforms is not None:
 	showall = True
-if args.shown_waveforms[0] is not None:
-	if args.shown_waveforms[0] == 'NONE':
-		showall = False
-	if args.shown_waveforms[0] == 'ALL':
-		showall = True
-	if args.shown_waveforms[0] != 'ALL' and args.shown_waveforms[0] != 'NONE':
-		parser.error('Choose to show [ALL] individual waveforms or [NONE] of them')
+if args.shown_waveforms is None:
+	#if args.shown_waveforms[0] == 'NONE':
+    showall = False
+	#if args.shown_waveforms[0] == 'ALL':
+	#	showall = True
+	#if args.shown_waveforms[0] != 'ALL' and args.shown_waveforms[0] != 'NONE':
+    #parser.error('Choose to show [ALL] individual waveforms or [NONE] of them')
 
 varray = []	
 psdarray = []
@@ -82,9 +82,10 @@ ac1 = 'orangered'
 ac2 = 'purple'
 
 if args.number_of_scintillators[0] == 1:
-	for input_file in range(len(args.first_input_data)):	
+	for input_file in range(len(args.first_input_data)):
 
 		path = '{}'.format(args.first_input_data[input_file])
+        
 		f = open(path)
 		data = f.readlines()
 
@@ -137,7 +138,7 @@ if args.number_of_scintillators[0] == 1:
 
 	d = np.array([time,Avarray])
 	d = d.T
-	np.savetxt('data/{}/{}/Average_Waveform.txt'.format(args.pmt_used[0], args.scintillator_type[0]), d, delimiter=';')
+	np.savetxt('data/{}/{}/Average_Waveform.txt'.format(args.pmt_used[0], args.scintillator[0]), d, delimiter=';')
 
 	##########Returns/Printing for Set 1
 

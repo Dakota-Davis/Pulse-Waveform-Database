@@ -19,6 +19,7 @@ parser.add_argument('-etarg', '--energy-target', type=int, nargs=2, help='The En
 parser.add_argument('-w', '--number_of_waveforms', type=int, nargs=1, help='The number of waveforms you would like saved')
 parser.add_argument('-list', '--list-available-input-files', action='store_true', help='Show available input and currently saved output files')
 parser.add_argument('-plot', '--plot', action='store_true', help='Plot psd v. energy to infom psd cuts and energy selection')
+parser.add_argument('-strip', '--strip_array', action='store_true', help='strip waveform from array for smaller files and outside use')
 
 args = parser.parse_args()
 
@@ -83,6 +84,9 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
     energy_arr = []
     es_arr = []
     samp_arr = []
+    
+    stripped_array = []
+    
     while True:
         board = f.read(2)
         i+=1
@@ -97,12 +101,30 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         nsample = struct.unpack('I',f.read(4))[0]
         samples = struct.unpack(nsample * 'H', f.read(2 * nsample))
         
+        print(board,channel,timestamp,energy,energy_short,flags,nsample)
+        
+        if args.strip_array is not None:
+            s_array = [struct.pack('H',board),struct.pack('H',channel),struct.pack('Q',timestamp),struct.pack('H',energy),struct.pack('H',energy_short),struct.pack('I',flags),struct.pack('I',nsample)]
+        
         energy_arr.append(energy)
         es_arr.append(energy_short)
         samp_arr.append(samples)
+        
+        if args.strip_array is not None:
+            stripped_array.append(s_array)
+            
         z+=1
         print(z)
     f.close()
+    exit(0)     #exit program
+    
+    #print(stripped_array)
+    if args.strip_array is not None:
+        #print(stripped_array)
+        pmtloc = args.pmt[0]
+        scintloc = args.scintillator[0]
+        stripped_data = np.array(stripped_array)
+        stripped_data.tofile('data/{}/{}/stripped_data.bin'.format(pmtloc,scintloc)) 
     
     samps = 0 #Samples gathered
     numosamps = 0 #Number of Samples wanted
