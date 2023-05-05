@@ -101,7 +101,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         nsample = struct.unpack('I',f.read(4))[0]
         samples = struct.unpack(nsample * 'H', f.read(2 * nsample))
         
-        print(board,channel,timestamp,energy,energy_short,flags,nsample)
+        #print(board,channel,timestamp,energy,energy_short,flags,nsample)
         
         if args.strip_array is not None:
             s_array = [struct.pack('H',board),struct.pack('H',channel),struct.pack('Q',timestamp),struct.pack('H',energy),struct.pack('H',energy_short),struct.pack('I',flags),struct.pack('I',nsample)]
