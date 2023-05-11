@@ -146,7 +146,8 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         
         #psd = np.zeros(len(energy_arr), np.float64)
         #psd = np.zeros(len(lines), np.float64)
-        psd = float(energy - energy_short) / float(energy)
+        if energy != 0:
+            psd = float(energy - energy_short) / float(energy)
         #if psd == 0:
         #    print("here", energy,energy_short)
         #print(psd)
@@ -173,9 +174,9 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
                 else:
                     vfilename = args.source[0] + '_data_' + args.scintillator[0] #File names
             data = np.array([energy,psd])
-            data = data.T
+            #data = data.T       
             #print(data)
-            if z == 1:
+            if z == 1:      #not sure whats going wrong, but this is only saving vertically (not all that critical though)
                 with open('data/{}/{}/ALLkev_psd_energy_{}.txt' .format(pmtloc,scintloc,args.output_scintillator[0]), 'w') as ALLkev:
                     np.savetxt(ALLkev, data, delimiter=';')
                 ALLkev.close()
