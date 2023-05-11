@@ -19,7 +19,7 @@ parser.add_argument('-etarg', '--energy-target', type=int, nargs=2, help='The En
 parser.add_argument('-w', '--number_of_waveforms', type=int, nargs=1, help='The number of waveforms you would like saved')
 parser.add_argument('-list', '--list-available-input-files', action='store_true', help='Show available input and currently saved output files')
 parser.add_argument('-plot', '--plot', action='store_true', help='Plot psd v. energy to infom psd cuts and energy selection')
-parser.add_argument('-strip', '--strip_array', action='store_true', help='strip waveform from array for smaller files and outside use')
+#parser.add_argument('-strip', '--strip_array', action='store_true', help='strip waveform from array for smaller files and outside use')
 
 args = parser.parse_args()
 
@@ -79,17 +79,22 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
     
     #lines = f.readlines() #Reads file
     #print(lines)
-    i=0
+    i=0             #what is this for?
     z=0
     energy_arr = []
     es_arr = []
+    psd_arr = []
     samp_arr = []
     
-    stripped_array = []
+    masked_psd = []
+    masked_energy = []
+    masked_waveforms = []
+    
+    #stripped_array = []
     
     while True:
         board = f.read(2)
-        i+=1
+        i+=1        #what is this for?
         if len(board) == 0:
             break
         board = struct.unpack('H',board)[0]
@@ -100,32 +105,121 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         flags = struct.unpack('I',f.read(4))[0]
         nsample = struct.unpack('I',f.read(4))[0]
         samples = struct.unpack(nsample * 'H', f.read(2 * nsample))
-        
+        #print(samples[0])
         #print(board,channel,timestamp,energy,energy_short,flags,nsample)
         
-        if args.strip_array is not None:
-            s_array = [struct.pack('H',board),struct.pack('H',channel),struct.pack('Q',timestamp),struct.pack('H',energy),struct.pack('H',energy_short),struct.pack('I',flags),struct.pack('I',nsample)]
+        #if args.strip_array is not None:     taking out feature until fixed
+        #    s_array = [struct.pack('H',board),struct.pack('H',channel),struct.pack('Q',timestamp),struct.pack('H',energy),struct.pack('H',energy_short),struct.pack('I',flags),struct.pack('I',nsample)]
         
-        energy_arr.append(energy)
-        es_arr.append(energy_short)
-        samp_arr.append(samples)
+        #energy_arr.append(energy)
+        #es_arr.append(energy_short)
+        #samp_arr.append(samples)        # <-- this is the memory issue
+            #removed all 3 to make nothing list dependent (for now probably)
         
-        if args.strip_array is not None:
-            stripped_array.append(s_array)
-            
+        #if args.strip_array is not None:
+        #    stripped_array.append(s_array)
+        
+        #energy = [] #ENERGY ARRAY
+        #energy_short = []
+        #waveforms = []
+
+        #waveforms = []
+        #nbase = 100
+        k = 0
+        #######"Loading Bar"###################
+        lb = 0
+        #######"Loading Bar"###################
+        """
+        if len(args.scintillator) == 1:
+            pmtloc = args.pmt[0]
+            scintloc = args.scintillator[0]
+            vfilename = args.source[0] + '_data_run_' + str(args.run_number[0]) + "_" + args.scintillator[0] #File names
+        """    
+        voltage = np.array(samples) * 2.0 / (2**14 -1) #Conversion from 2V range using 14 bit digitizer
+        #print(voltage[0])
+        #print(voltage)
+        time = 4e-9 * np.arange(voltage.size)       #Times of each voltage sample are seperated by 4 nanoseconds
+        #print(time)
+
+            #waveforms.append(voltage)
+            #print(voltage)
+        
+        #psd = np.zeros(len(energy_arr), np.float64)
+        #psd = np.zeros(len(lines), np.float64)
+        psd = float(energy - energy_short) / float(energy)
+        #if psd == 0:
+        #    print("here", energy,energy_short)
+        #print(psd)
+
+        #energy = np.array(energy_arr)
+        #waveforms = np.array(waveforms)
+        
         z+=1
-        print(z)
+        print(z)            #after this is the saving section
+        
+        
+        """
+        data = np.array([energy,psd])
+        data = data.T
+        np.savetxt('data/{}/{}/ALLkev_psd_energy.txt' .format(pmtloc,scintloc), data, delimiter=';')
+        """
+        if args.psd_cut is not None and args.energy_target is not None:
+            if len(args.scintillator) == 1:
+                pmtloc = args.pmt[0]
+                scintloc = args.scintillator[0]
+                if args.output_scintillator is not None:
+                    scintloc = args.output_scintillator[0]
+                    vfilename = args.source[0] + '_data_' + args.output_scintillator[0] #File names
+                else:
+                    vfilename = args.source[0] + '_data_' + args.scintillator[0] #File names
+            data = np.array([energy,psd])
+            data = data.T
+            #print(data)
+            if z == 1:
+                with open('data/{}/{}/ALLkev_psd_energy_{}.txt' .format(pmtloc,scintloc,args.output_scintillator[0]), 'w') as ALLkev:
+                    np.savetxt(ALLkev, data, delimiter=';')
+                ALLkev.close()
+            if z > 1:
+                with open('data/{}/{}/ALLkev_psd_energy_{}.txt' .format(pmtloc,scintloc,args.output_scintillator[0]), 'a') as ALLkev:
+                    np.savetxt(ALLkev, data, delimiter=';')
+                ALLkev.close()
+                
+            psd_mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0]) #Both psd and energy cuts for sorting data
+            energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0]) 
+            
+            mask = psd_mask & energy_mask
+            """
+            masked_psd = psd[mask]
+            masked_energy = energy[mask]
+
+            #print(waveforms.shape)
+            #print("Mask shape: ",mask.shape)
+
+            masked_waveforms = waveforms[mask]
+            #print(masked_waveforms,masked_waveforms.shape)
+            #print("Mask sum: ",mask.sum())
+            """
+            if mask:
+                #print(psd)
+                #print(psd == psd_mask)
+                masked_psd.append(psd)
+                masked_energy.append(energy)
+                masked_waveforms.append(voltage)        #may run into problem like samps_arr
+                                                        #leave for now to check if working
+                #print("ok")
+                
+            nbase = 100 # use 100 samples to measure the baseline of the voltage waveform at the beginning. This is the “zero” point
+            #nmax = np.min([mask.sum(), 100]) # output 100 waveforms if available, otherwise output all waveforms selected by mask
+            #for j in range(nmax):
+            
+            
+        
     f.close()
+    #print(masked_waveforms)
     #exit(0)     #exit program
     
-    #print(stripped_array)
-    if args.strip_array is not None:
-        #print(stripped_array)
-        pmtloc = args.pmt[0]
-        scintloc = args.scintillator[0]
-        stripped_data = np.array(stripped_array)
-        stripped_data.tofile('data/{}/{}/stripped_data.bin'.format(pmtloc,scintloc)) 
-    
+    #take out for now
+    """
     samps = 0 #Samples gathered
     numosamps = 0 #Number of Samples wanted
     if args.number_of_waveforms is None: #Automates samples gathered for saving later on
@@ -135,48 +229,25 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
             parser.error('Specified Samples out of Range. . . Enter a number between 1 and the file length [{}]'.format(len(samp_arr)))
         if args.number_of_waveforms[0] <= len(samp_arr):
             numosamps = args.number_of_waveforms[0]
-
-    energy = [] #ENERGY ARRAY
-    energy_short = []
-    waveforms = []
-
-    #waveforms = []
-    #nbase = 100
-    k = 0
-    #######"Loading Bar"###################
-    lb = 0
-    #######"Loading Bar"###################
     """
-    if len(args.scintillator) == 1:
-        pmtloc = args.pmt[0]
-        scintloc = args.scintillator[0]
-        vfilename = args.source[0] + '_data_run_' + str(args.run_number[0]) + "_" + args.scintillator[0] #File names
-    """    
-    for samp in samp_arr:
-        voltage = np.array(samp) * 2.0 / (2**14 -1) #Conversion from 2V range using 14 bit digitizer
-        time = 4e-9 * np.arange(voltage.size)       #Times of each voltage sample are seperated by 4 nanoseconds
-        
-        waveforms.append(voltage)
-        
-    psd = np.zeros(len(energy_arr), np.float64)
-    #psd = np.zeros(len(lines), np.float64)
-    for e in range(len(energy_arr)):
-        if energy_arr[e] != 0:
-            psd[e] = float(energy_arr[e] - es_arr[e]) / float(energy_arr[e])
-    #print(psd)
     
-    energy = np.array(energy_arr)
-    waveforms = np.array(waveforms)
-    
+    #print(stripped_array)
+    #if args.strip_array is not None:
+    #    #print(stripped_array)
+    #    pmtloc = args.pmt[0]
+    #    scintloc = args.scintillator[0]
+    #    stripped_data = np.array(stripped_array)
+    #   stripped_data.tofile('data/{}/{}/stripped_data.bin'.format(pmtloc,scintloc))
+    """
     if args.plot is True:
         ##########################
         #####ENERGY HIST HERE#####
-        """
-        plt.subplot(1,2,1)
-        plt.hist(energy, bins=400, range=[0,400], color='black')#4096
-        plt.xlim(0,400)
-        plt.subplot(1,2,2) 
-        """
+        
+        #plt.subplot(1,2,1)
+        #plt.hist(energy, bins=400, range=[0,400], color='black')#4096
+        #plt.xlim(0,400)
+        #plt.subplot(1,2,2) 
+        
         if args.psd_cut is not None:
             mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
             masked_psd = psd[mask]
@@ -201,81 +272,48 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
             plt.xlabel("Energy")
             plt.ylabel("PSD")
             plt.show()
-            
-        
     """
-    data = np.array([energy,psd])
-    data = data.T
-    np.savetxt('data/{}/{}/ALLkev_psd_energy.txt' .format(pmtloc,scintloc), data, delimiter=';')
-    """
-    if args.psd_cut is not None and args.energy_target is not None:
-        if len(args.scintillator) == 1:
-            pmtloc = args.pmt[0]
-            scintloc = args.scintillator[0]
-            if args.output_scintillator is not None:
-                scintloc = args.output_scintillator[0]
-                vfilename = args.source[0] + '_data_' + args.output_scintillator[0] #File names
-            else:
-                vfilename = args.source[0] + '_data_' + args.scintillator[0] #File names
-        data = np.array([energy,psd])
+    samps = 0    
+    numosamps = 10
+    
+    for j in range(len(masked_waveforms)): 
+        if samps >= numosamps:
+            break
+
+        waveform = masked_waveforms[j]
+        baseline = waveform[:nbase].sum() / nbase
+        waveform -= baseline
+        #print("sent")
+
+        #plt.plot(time, waveforms[l])
+        #plt.show()
+
+        #print(waveform,waveform.shape)
+
+        time = np.insert(time, 0, masked_psd[j], axis=0) #Inserts psd into array for saving to 1 file
+        waveform = np.insert(waveform, 0, masked_energy[j], axis=0) #Inserts energy into array for saving to 1 file 
+        #print("energy is: ",energy[j])
+        #print(waveform,waveform.shape)
+
+        data = np.array([time,waveform])
         data = data.T
-        np.savetxt('data/{}/{}/ALLkev_psd_energy_{}.txt' .format(pmtloc,scintloc,args.output_scintillator[0]), data, delimiter=';')
-        
-        psd_mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0]) #Both psd and energy cuts for sorting data
-        energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0]) 
-        mask = psd_mask & energy_mask
-        
-        masked_psd = psd[mask]
-        masked_energy = energy[mask]
 
-        #print(waveforms.shape)
-        #print("Mask shape: ",mask.shape)
-        
-        masked_waveforms = waveforms[mask]
-        #print(masked_waveforms,masked_waveforms.shape)
-        #print("Mask sum: ",mask.sum())
+        with open('data/{}/{}/{}__{}.txt'.format(pmtloc,scintloc,vfilename,samps), 'w') as op:
+            for sample in range(time.size):
+                #print(time[sample])
+                #print(waveform[sample])
+                #print(sample)
+                op.write("%.6e;%.6e\n"%(time[sample],waveform[sample]))
+        op.close()
 
-        nbase = 100 # use 100 samples to measure the baseline of the voltage waveform at the beginning. This is the “zero” point
-        #nmax = np.min([mask.sum(), 100]) # output 100 waveforms if available, otherwise output all waveforms selected by mask
-        #for j in range(nmax):
-        for j in range(len(masked_waveforms)): 
-            if samps >= numosamps:
-                break
-
-            waveform = masked_waveforms[j]
-            baseline = waveform[:nbase].sum() / nbase
-            waveform -= baseline
-            #print("sent")
-
-            #plt.plot(time, waveforms[l])
-            #plt.show()
-
-            #print(waveform,waveform.shape)
-
-            time = np.insert(time, 0, masked_psd[j], axis=0) #Inserts psd into array for saving to 1 file
-            waveform = np.insert(waveform, 0, masked_energy[j], axis=0) #Inserts energy into array for saving to 1 file 
-            #print("energy is: ",energy[j])
-            #print(waveform,waveform.shape)
-
-            data = np.array([time,waveform])
-            data = data.T
-
-            with open('data/{}/{}/{}__{}.txt'.format(pmtloc,scintloc,vfilename,samps), 'w') as op:
-                for sample in range(time.size):
-                    #print(time[sample])
-                    #print(waveform[sample])
-                    #print(sample)
-                    op.write("%.6e;%.6e\n"%(time[sample],waveform[sample]))
-                op.close()
-
-            time = np.delete(time, 0, 0)
-            waveform = np.delete(waveform, 0, 0)
-            samps +=1
-            k += 1
-            #######"Loading Bar"###################
-            print("Set [",samps,"/",numosamps,"] of [",len(samp_arr),"] . . . Compiled")
-            #######"Loading Bar"###################
-
+        time = np.delete(time, 0, 0)
+        waveform = np.delete(waveform, 0, 0)
+        samps +=1
+        k += 1
+        #######"Loading Bar"###################
+        print("Set [",samps,"/",numosamps,"] of [",len(samp_arr),"] . . . Compiled")
+        #######"Loading Bar"###################
+"""
 if args.plot is True and args.psd_cut is not None and args.energy_target is not None:
     
     #plt.subplot(1,2,1)
@@ -304,4 +342,4 @@ if args.plot is True and args.psd_cut is not None and args.energy_target is not 
     d = d.T
     np.savetxt('data/{}/{}/MASKEDkev_psd_energy_{}.txt'.format(pmtloc,scintloc,args.output_scintillator[0]), d, delimiter=';')
     plt.show()
-
+"""
