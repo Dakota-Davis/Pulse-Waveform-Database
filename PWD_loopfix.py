@@ -96,6 +96,74 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         board = f.read(2)
         i+=1        #what is this for?
         if len(board) == 0:
+            if args.plot is True:
+                ##########################
+                #####ENERGY HIST HERE#####
+                
+                #plt.subplot(1,2,1)
+                #plt.hist(energy, bins=400, range=[0,400], color='black')#4096
+                #plt.xlim(0,400)
+                #plt.subplot(1,2,2) 
+            
+                if args.psd_cut is not None:
+                    psd = np.array(psd_arr)
+                    energy = np.array(energy_arr)
+                    mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
+                    #print(mask)
+                    #masked_psd = psd_arr[mask]      #redundant array?
+                    #masked_energy = np.array(energy_arr[mask]) #redundant array?
+                    
+                    plt.subplot(1,2,1)
+                    plt.scatter(energy, psd, color='black')
+                    plt.ylim(0,1)
+                    plt.xlabel("Energy")
+                    plt.ylabel("PSD")
+                    
+                    plt.subplot(1,2,2) 
+                    plt.hist(energy[mask], bins=100, color='black')#4096
+                    #plt.xlim(0,1000)
+                    plt.xlabel("Energy")
+                    plt.ylabel("Counts")
+                    plt.show()
+                    
+                else:
+                    plt.scatter(energy_arr, psd_arr, color='black')
+                    plt.ylim(0,1)
+                    plt.xlabel("Energy")
+                    plt.ylabel("PSD")
+                    plt.show() 
+                    
+                if args.psd_cut is not None and args.energy_target is not None:
+                    psd = np.array(psd_arr)
+                    energy = np.array(energy_arr)
+                    mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
+                    #plt.subplot(1,2,1)
+                    _, bins, _ = plt.hist(energy, bins=100, color='black') #sets the standard bin count for all energy (for use in masked histogram)
+                    #plt.subplot(1,2,2) 
+                    #plt.hist(energy[psd_mask], bins=bins, color='black')
+                    #plt.hist(energy[psd_mask & energy_mask], bins=bins, color='orange')
+                    #plt.show()
+                    plt.subplot(1,2,1) 
+                    plt.scatter(energy, psd, color='black')
+                    plt.ylim(0,1)
+                    plt.subplot(1,2,2)
+                    plt.hist(energy[mask], bins=bins, color='black')#4096
+                    #plt.xlim(0,args.energy_target[1])
+                    plt.xlabel("Energy")
+                    plt.ylabel("Counts")
+                    plt.subplot(1,2,1)
+                    plt.scatter(masked_energy,masked_psd, color='orange')
+                    plt.xlabel("Energy")
+                    plt.ylabel("PSD")
+                    plt.subplot(1,2,2)
+                    plt.hist(masked_energy, bins=bins, color='orange')
+                    #plt.xlim(0,args.energy_target[1])
+                    
+                    d = np.array([masked_energy,masked_psd])
+                    d = d.T
+                    np.savetxt('data/{}/{}/MASKEDkev_psd_energy_{}.txt'.format(pmtloc,scintloc,args.output_scintillator[0]), d, delimiter=';')
+                    plt.show()
+                
             break
         board = struct.unpack('H',board)[0]
         channel = struct.unpack('H',f.read(2))[0]
@@ -111,7 +179,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         #if args.strip_array is not None:     taking out feature until fixed
         #    s_array = [struct.pack('H',board),struct.pack('H',channel),struct.pack('Q',timestamp),struct.pack('H',energy),struct.pack('H',energy_short),struct.pack('I',flags),struct.pack('I',nsample)]
         
-        #energy_arr.append(energy)
+        energy_arr.append(energy)       #testing bringing it back for plotting & overall run speed
         #es_arr.append(energy_short)
         #samp_arr.append(samples)        # <-- this is the memory issue
             #removed all 3 to make nothing list dependent (for now probably)
@@ -146,8 +214,9 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         
         #psd = np.zeros(len(energy_arr), np.float64)
         #psd = np.zeros(len(lines), np.float64)
-        if energy != 0:
+        if energy != 0:     #prevents divide by zero
             psd = float(energy - energy_short) / float(energy)
+            psd_arr.append(psd)
         #if psd == 0:
         #    print("here", energy,energy_short)
         #print(psd)
@@ -173,6 +242,9 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
                     vfilename = args.source[0] + '_data_' + args.output_scintillator[0] #File names
                 else:
                     vfilename = args.source[0] + '_data_' + args.scintillator[0] #File names
+            
+            """
+            #do we need this? not entirely sure what it's used for... reduces run speed, too...      
             data = np.array([energy,psd])
             #data = data.T       
             #print(data)
@@ -184,6 +256,8 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
                 with open('data/{}/{}/ALLkev_psd_energy_{}.txt' .format(pmtloc,scintloc,args.output_scintillator[0]), 'a') as ALLkev:
                     np.savetxt(ALLkev, data, delimiter=';')
                 ALLkev.close()
+            """    
+                
                 
             psd_mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0]) #Both psd and energy cuts for sorting data
             energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0]) 
@@ -201,7 +275,6 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
             #print("Mask sum: ",mask.sum())
             """
             if mask:
-                #print(psd)
                 #print(psd == psd_mask)
                 masked_psd.append(psd)
                 masked_energy.append(energy)
@@ -212,25 +285,24 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
             nbase = 100 # use 100 samples to measure the baseline of the voltage waveform at the beginning. This is the “zero” point
             #nmax = np.min([mask.sum(), 100]) # output 100 waveforms if available, otherwise output all waveforms selected by mask
             #for j in range(nmax):
-            
-            
+               
         
     f.close()
     #print(masked_waveforms)
     #exit(0)     #exit program
     
     #take out for now
-    """
+    
     samps = 0 #Samples gathered
     numosamps = 0 #Number of Samples wanted
     if args.number_of_waveforms is None: #Automates samples gathered for saving later on
-        numosamps = len(samp_arr)
+        numosamps = len(energy_Arr)
     if args.number_of_waveforms is not None:
-        if args.number_of_waveforms[0] > len(samp_arr) or args.number_of_waveforms[0] < 1:
-            parser.error('Specified Samples out of Range. . . Enter a number between 1 and the file length [{}]'.format(len(samp_arr)))
-        if args.number_of_waveforms[0] <= len(samp_arr):
+        if args.number_of_waveforms[0] > len(energy_arr) or args.number_of_waveforms[0] < 1:
+            parser.error('Specified Samples out of Range. . . Enter a number between 1 and the file length [{}]'.format(len(energy_arr)))
+        if args.number_of_waveforms[0] <= len(energy_arr):
             numosamps = args.number_of_waveforms[0]
-    """
+   
     
     #print(stripped_array)
     #if args.strip_array is not None:
@@ -239,43 +311,10 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
     #    scintloc = args.scintillator[0]
     #    stripped_data = np.array(stripped_array)
     #   stripped_data.tofile('data/{}/{}/stripped_data.bin'.format(pmtloc,scintloc))
-    """
-    if args.plot is True:
-        ##########################
-        #####ENERGY HIST HERE#####
-        
-        #plt.subplot(1,2,1)
-        #plt.hist(energy, bins=400, range=[0,400], color='black')#4096
-        #plt.xlim(0,400)
-        #plt.subplot(1,2,2) 
-        
-        if args.psd_cut is not None:
-            mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
-            masked_psd = psd[mask]
-            masked_energy = energy[mask]
-            
-            plt.subplot(1,2,1)
-            plt.scatter(energy, psd, color='black')
-            plt.ylim(0,1)
-            plt.xlabel("Energy")
-            plt.ylabel("PSD")
-            
-            plt.subplot(1,2,2) 
-            plt.hist(masked_energy, bins=100, color='black')#4096
-            #plt.xlim(0,1000)
-            plt.xlabel("Energy")
-            plt.ylabel("Counts")
-            plt.show()
-            
-        else:
-            plt.scatter(energy, psd, color='black')
-            plt.ylim(0,1)
-            plt.xlabel("Energy")
-            plt.ylabel("PSD")
-            plt.show()
-    """
-    samps = 0    
-    numosamps = 10
+    
+
+    #samps = 0    
+    #numosamps = 10
     
     for j in range(len(masked_waveforms)): 
         if samps >= numosamps:
@@ -312,35 +351,5 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         samps +=1
         k += 1
         #######"Loading Bar"###################
-        print("Set [",samps,"/",numosamps,"] of [",len(samp_arr),"] . . . Compiled")
+        print("Set [",samps,"/",numosamps,"] of [",len(energy_arr),"] . . . Compiled")
         #######"Loading Bar"###################
-"""
-if args.plot is True and args.psd_cut is not None and args.energy_target is not None:
-    
-    #plt.subplot(1,2,1)
-    _, bins, _ = plt.hist(energy, bins=100, color='black') #sets the standard bin count for all energy (for use in masked histogram)
-    #plt.subplot(1,2,2) 
-    #plt.hist(energy[psd_mask], bins=bins, color='black')
-    #plt.hist(energy[psd_mask & energy_mask], bins=bins, color='orange')
-    #plt.show()
-    plt.subplot(1,2,1) 
-    plt.scatter(energy, psd, color='black')
-    plt.ylim(0,1)
-    plt.subplot(1,2,2)
-    plt.hist(energy[psd_mask], bins=bins, color='black')#4096
-    #plt.xlim(0,args.energy_target[1])
-    plt.xlabel("Energy")
-    plt.ylabel("Counts")
-    plt.subplot(1,2,1)
-    plt.scatter(masked_energy,masked_psd, color='orange')
-    plt.xlabel("Energy")
-    plt.ylabel("PSD")
-    plt.subplot(1,2,2)
-    plt.hist(masked_energy, bins=bins, color='orange')
-    #plt.xlim(0,args.energy_target[1])
-    
-    d = np.array([masked_energy,masked_psd])
-    d = d.T
-    np.savetxt('data/{}/{}/MASKEDkev_psd_energy_{}.txt'.format(pmtloc,scintloc,args.output_scintillator[0]), d, delimiter=';')
-    plt.show()
-"""
