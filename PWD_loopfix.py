@@ -218,9 +218,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
                 #print(psd == psd_mask)
                 masked_psd.append(psd)
                 masked_energy.append(energy)
-                masked_waveforms.append(voltage)        #may run into problem like samps_arr
-                                                        #leave for now to check if working
-                #print("ok")    
+                masked_waveforms.append(voltage)      #may run into problem like samps_arr  
     f.close()
     #print(masked_waveforms)
     #exit(0)     #exit program
