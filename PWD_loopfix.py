@@ -149,6 +149,7 @@ while True:
 
     #if (cnt > 5000): break
 f.close()
+print("PSD Flags (energy = 0): ",psd_flags)
 
 energy, psd = np.transpose(results)
 
