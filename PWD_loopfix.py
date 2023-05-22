@@ -241,7 +241,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         data = data.T
         np.savetxt('data/{}/{}/ALLkev_psd_energy.txt' .format(pmtloc,scintloc), data, delimiter=';')
         """
-        if args.psd_cut is not None and args.energy_target is not None:
+        if args.psd_cut is not None and args.energy_target is not None: #can this be moved out of the loop, maybe?
             if len(args.scintillator) == 1:
                 pmtloc = args.pmt[0]
                 scintloc = args.scintillator[0]
