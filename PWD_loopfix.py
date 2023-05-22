@@ -84,6 +84,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
     energy_arr = []
     es_arr = []
     psd_arr = []
+    psd_flags = 0
     samp_arr = []
     
     masked_psd = []
@@ -96,6 +97,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         board = f.read(2)
         i+=1        #what is this for?
         if len(board) == 0:
+            print("PSD flags: ",psd_flags)
             if args.plot is True:
                 ##########################
                 #####ENERGY HIST HERE#####
@@ -127,6 +129,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
                     plt.show()
                     
                 else:
+                    print(len(energy_arr),len(psd_arr))
                     plt.scatter(energy_arr, psd_arr, color='black')
                     plt.ylim(0,1)
                     plt.xlabel("Energy")
@@ -214,9 +217,14 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         
         #psd = np.zeros(len(energy_arr), np.float64)
         #psd = np.zeros(len(lines), np.float64)
+        
         if energy != 0:     #prevents divide by zero
             psd = float(energy - energy_short) / float(energy)
             psd_arr.append(psd)
+        else:
+            psd = 1.1
+            psd_arr.append(psd)
+            psd_flags += 1
         #if psd == 0:
         #    print("here", energy,energy_short)
         #print(psd)
@@ -296,7 +304,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
     samps = 0 #Samples gathered
     numosamps = 0 #Number of Samples wanted
     if args.number_of_waveforms is None: #Automates samples gathered for saving later on
-        numosamps = len(energy_Arr)
+        numosamps = len(energy_arr)
     if args.number_of_waveforms is not None:
         if args.number_of_waveforms[0] > len(energy_arr) or args.number_of_waveforms[0] < 1:
             parser.error('Specified Samples out of Range. . . Enter a number between 1 and the file length [{}]'.format(len(energy_arr)))
