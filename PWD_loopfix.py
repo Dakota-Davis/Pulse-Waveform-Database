@@ -97,7 +97,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
         board = f.read(2)
         i+=1        #what is this for?
         if len(board) == 0:
-            print("PSD flags: ",psd_flags)
+            print("PSD flags (energy=0): ",psd_flags)
             if args.plot is True:
                 ##########################
                 #####ENERGY HIST HERE#####
@@ -129,7 +129,7 @@ if args.psd_cut is not None or args.plot is True:        #temporary check to pre
                     plt.show()
                     
                 else:
-                    print(len(energy_arr),len(psd_arr))
+                    #print(len(energy_arr),len(psd_arr))
                     plt.scatter(energy_arr, psd_arr, color='black')
                     plt.ylim(0,1)
                     plt.xlabel("Energy")
