@@ -147,7 +147,7 @@ while True:
 
     # END if (psd_cut and energy_target)
 
-    if (cnt > 5000): break
+    #if (cnt > 5000): break
 f.close()
 
 energy, psd = np.transpose(results)
