@@ -69,16 +69,10 @@ vfilename = 'data/{}/{}/{}_%05d.txt'.format(args.pmt, args.scintillator, vfilena
 
 """
     if args.output_scintillator is not None:
-        out_dir = "data/%s/%s/" %(args.pmt[0], args.output_scintillator[0])  #output directory name
+        out_dir = "data/%s/%s/" %(args.pmt, args.output_scintillator)  #output directory name
         print(out_dir)
         print("\n")
-        path = os.path.join(dir, args.source[0] + ".bin")
-        os.system("mkdir -p " + out_dir)            #makes the output directory
-    else:
-        out_dir = "data/%s/%s/" %(args.pmt[0], args.scintillator[0])  #output directory name
-        print(out_dir)
-        print("\n")
-        path = os.path.join(dir, args.source[0] + ".bin")
+        path = os.path.join(dir, args.source + ".bin")
         os.system("mkdir -p " + out_dir)            #makes the output directory
 """
     
