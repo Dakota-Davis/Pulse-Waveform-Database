@@ -9,16 +9,17 @@ from argparse import ArgumentParser
 
 parser = ArgumentParser(prog = 'Pulse Waveform Database Data Runner', description='This is a data runner for the Pulse Waveform Database')
 parser.add_argument('-n', '--number-of-scintillators', type=int, nargs=1, help='The number of scintillators used in the test')
-parser.add_argument('-fid', '--first-input-data',type=str, nargs='+', help='The first set of data file(s) (which file you want to use)')
-parser.add_argument('-sid', '--second-input-data',type=str, nargs='+', help='The second set of data file(s) (which file you want to use)')
+#fix or remove above arg (can do later though)
+parser.add_argument('-f', '--first-input-data',type=str, nargs='+', help='The first set of data file(s) (which file you want to use)')
+#parser.add_argument('-sid', '--second-input-data',type=str, nargs='+', help='The second set of data file(s) (which file you want to use)')
 parser.add_argument('-p', '--pmt-used', type=str, nargs='*', help='The PMT that was used for the data set')
-parser.add_argument('-scint', '--scintillator', type=str, nargs='*', help='The scintillator that was used for the data set')
-parser.add_argument('-hc', '--histogram-xlimit', type=int, nargs=2, help='The minimum and maximum x-limit for the energy histogram')
-parser.add_argument('-show', '--shown_waveforms', action='store_true', help='To show or not to show all individual waveforms [ALL] or [NONE]')
+parser.add_argument('-s', '--scintillator', type=str, nargs='*', help='The scintillator that was used for the data set')
+parser.add_argument('-l', '--histogram-xlimit', type=int, nargs=2, help='The minimum and maximum x-limit for the energy histogram')
+parser.add_argument('-z', '--show', action='store_true', help='To show or not to show all individual waveforms [ALL] or [NONE]')
 
 args = parser.parse_args()
 
-if args.first_input_data is None and args.second_input_data:
+if args.first_input_data is None:
 	parser.error('No data specified. . . Please specify the data file to be run')
 
 if args.number_of_scintillators is None:
@@ -56,14 +57,14 @@ if args.histogram_xlimit is not None and len(args.histogram_xlimit) == 2:
 	hist_maxxlim = args.histogram_xlimit[1]
 
 showall = True
-if args.shown_waveforms is not None:
+if args.show is not None:
 	showall = True
-if args.shown_waveforms is None:
-	#if args.shown_waveforms[0] == 'NONE':
+if args.show is None:
+	#if args.show[0] == 'NONE':
     showall = False
-	#if args.shown_waveforms[0] == 'ALL':
+	#if args.show[0] == 'ALL':
 	#	showall = True
-	#if args.shown_waveforms[0] != 'ALL' and args.shown_waveforms[0] != 'NONE':
+	#if args.show[0] != 'ALL' and args.show[0] != 'NONE':
     #parser.error('Choose to show [ALL] individual waveforms or [NONE] of them')
 
 varray = []	
@@ -92,7 +93,7 @@ if args.number_of_scintillators[0] == 1:
 		voltage = []
 		time = []
 		for line in data:
-			split_line = line.split(';')
+			split_line = line.split(' ')
 			if len(split_line) > 1:
 				time.append(float(split_line[0]))
 				voltage.append(float(split_line[1]))
@@ -138,7 +139,8 @@ if args.number_of_scintillators[0] == 1:
 
 	d = np.array([time,Avarray])
 	d = d.T
-	np.savetxt('data/{}/{}/Average_Waveform.txt'.format(args.pmt_used[0], args.scintillator[0]), d, delimiter=';')
+	np.savetxt('data/{}/{}/Average_Waveform.txt'.format(args.pmt_used[0], args.scintillator[0]), d, delimiter=';')  
+    #may need to change (above) due to file naming system changing
 
 	##########Returns/Printing for Set 1
 

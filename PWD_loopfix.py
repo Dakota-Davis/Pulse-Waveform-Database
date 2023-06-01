@@ -67,14 +67,13 @@ scint_out = args.output_scintillator if args.output_scintillator is not None els
 vfilename = args.source + '_data_' + scint_out # base output file name for waveforms
 vfilename = 'data/{}/{}/{}_%05d.txt'.format(args.pmt, args.scintillator, vfilename) 
 
-"""
-    if args.output_scintillator is not None:
-        out_dir = "data/%s/%s/" %(args.pmt, args.output_scintillator)  #output directory name
-        print(out_dir)
-        print("\n")
-        path = os.path.join(dir, args.source + ".bin")
-        os.system("mkdir -p " + out_dir)            #makes the output directory
-"""
+# added this back so it would have a place to save files and not break
+if args.scintillator is not None:
+    out_dir = "data/%s/%s/" %(args.pmt, args.scintillator)  #output directory name
+    print(out_dir)
+    print("\n")
+    path = os.path.join(dir, args.source + ".bin")
+    os.system("mkdir -p " + out_dir)            #makes the output directory
     
 # open the file
 f = open(path, 'rb')
@@ -114,7 +113,7 @@ while True:
     cnt += 1
     print(cnt)
         
-    if args.psd_cut is not None and args.energy_target is not None:
+    if args.psd_cut is not None and args.energy_target is not None and nout != args.number_of_waveforms:
             
         # Both psd and energy cuts for sorting data
         psd_selected = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
@@ -136,8 +135,9 @@ while True:
             op.close()
 
             nout += 1
-            if nout == 100:
-                break
+            print("Waveform [",nout,"] of [",args.number_of_waveforms,"] . . . Saved")
+            #if nout == 100:
+            #    break
 
     # END if (psd_cut and energy_target)
 
@@ -148,9 +148,6 @@ print("PSD Flags (energy = 0): ",psd_flags)
 energy, psd = np.transpose(results)
 
 if args.plot is True:
-        ##########################
-        #####ENERGY HIST HERE#####
-
         plt.figure(figsize=(12, 6))
         plt.subplot(1,2,1)
         ax1 = plt.gca()
@@ -165,12 +162,14 @@ if args.plot is True:
         plt.xlabel("Energy")
         plt.ylabel("Counts")
  
-        if args.psd_cut is not None:
-            mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
-            ax1.scatter(energy[mask], psd[mask], color='orange')
-            ax2.hist(energy[mask], bins=100, color='orange')
-
-                    
+        if args.psd_cut is not None and args.energy_target is not None:
+            psd_mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
+            energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0])
+            mask = psd_mask & energy_mask
+            
+            ax1.scatter(energy[mask], psd[mask], color='orange')        #this one looks fine
+            ax2.hist(energy[mask], bins=100, color='orange')            #this one looks odd, the masked section is very small
+            
         plt.show()
         exit(0)
         """
