@@ -154,7 +154,7 @@ if args.plot is True:
     ax1 = plt.gca()
     #plt.scatter(energy, psd, color='black')
     ###
-    plt.hist2d(energy, psd, bins=500, cmin=1, cmap='newcmp')
+    plt.hist2d(energy, psd, bins=500, cmin=1, cmap='newcmp')        #appy new color map
     cb = plt.colorbar()
     cb.set_label("Counts")
     ###
