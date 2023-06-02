@@ -4,7 +4,7 @@ from scipy.optimize import curve_fit
 from scipy.signal import lfilter
 import scipy.signal as signal
 from database_functions import *
-"""
+
 path = 'data/hamamatsu_r5800/scionix_2_naitl_co60_1173kev/Average_Waveform.txt'
         
 f = open(path)
@@ -21,7 +21,7 @@ for line in data:
 f.close()
 
 plt.plot(time, voltage, c='blue')
-"""
+
 
 path2 = 'data/hamamatsu_r5800/scionix_2_naitl_co60_1332kev/Average_Waveform.txt'
         
@@ -38,7 +38,7 @@ for line in data:
 f.close()
        
 plt.plot(time2, voltage2,c='red')
-
+"""
 path3 = 'data/hamamatsu_r5800/scionix_2_csina_co60_1332kev/Average_Waveform.txt'
         
 f = open(path3)
@@ -54,7 +54,10 @@ for line in data:
 f.close()
        
 plt.plot(time3, voltage3,c='green')
-
 plt.axhline(y=-0.1, c='black', linestyle='-')
+"""
 
+plt.xlabel(r"Time [s]")
+plt.ylabel("Amplitude [V]")
+plt.title("Amplitude v. Time")
 plt.show()
