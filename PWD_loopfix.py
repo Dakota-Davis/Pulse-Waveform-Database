@@ -148,59 +148,37 @@ print("PSD Flags (energy = 0): ",psd_flags)
 energy, psd = np.transpose(results)
 
 if args.plot is True:
-        plt.figure(figsize=(12, 6))
-        plt.subplot(1,2,1)
-        ax1 = plt.gca()
-        plt.scatter(energy, psd, color='black')
-        plt.ylim(0,1)
-        plt.xlabel("Energy")
-        plt.ylabel("PSD")
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1,2,1)
+    ax1 = plt.gca()
+    #plt.scatter(energy, psd, color='black')
+    ###
+    plt.hist2d(energy, psd, bins=500, cmin=1, cmap='cool_r')
+    cb = plt.colorbar()
+    cb.set_label("Counts")
+    ###
+    plt.ylim(0,1)
+    plt.xlabel("Energy")
+    plt.ylabel("PSD")
 
-        plt.subplot(1,2,2) 
-        ax2 = plt.gca()
-        plt.hist(energy, bins=100, color='black')
-        plt.xlabel("Energy")
-        plt.ylabel("Counts")
- 
-        if args.psd_cut is not None and args.energy_target is not None:
-            psd_mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
-            energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0])
-            mask = psd_mask & energy_mask
-            
-            ax1.scatter(energy[mask], psd[mask], color='orange')        #this one looks fine
-            ax2.hist(energy[mask], bins=100, color='orange')            #this one looks odd, the masked section is very small
-            
-        plt.show()
-        exit(0)
-        """
-        else:
-            print("I am here 2")
-            plt.scatter(energy, psd, color='black')
-            plt.ylim(0,1)
-            plt.xlabel("Energy")
-            plt.ylabel("PSD")
-            plt.show() 
-                    
-        if args.psd_cut is not None and args.energy_target is not None:
-            print("I am here 3")
-            mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
-            _, bins, _ = plt.hist(energy, bins=100, color='black') #sets the standard bin count for all energy (for use in masked histogram)
-            plt.subplot(1,2,1) 
-            plt.scatter(energy, psd, color='black')
-            plt.ylim(0,1)
-            plt.subplot(1,2,2)
-            plt.hist(energy[mask], bins=bins, color='black')#4096
-            plt.xlabel("Energy")
-            plt.ylabel("Counts")
-            plt.subplot(1,2,1)
-            plt.scatter(masked_energy,masked_psd, color='orange')
-            plt.xlabel("Energy")
-            plt.ylabel("PSD")
-            plt.subplot(1,2,2)
-            plt.hist(masked_energy, bins=bins, color='orange')
+    plt.subplot(1,2,2) 
+    ax2 = plt.gca()
+    plt.hist(energy, bins=100, color='black')
+    plt.xlabel("Energy")
+    plt.ylabel("Counts")
+    
+    if args.psd_cut is not None and args.energy_target is not None:
+        psd_mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
+        energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0])
+        mask = psd_mask & energy_mask
 
-            d = np.array([masked_energy,masked_psd])
-            d = d.T
-            #np.savetxt('data/{}/{}/MASKEDkev_psd_energy_{}.txt'.format(pmtloc,scintloc,args.output_scintillator[0]), d, delimiter=';')
-            plt.show()
-        """
+        #ax1.scatter(energy[mask], psd[mask], color='orange')        #this one looks fine
+        ###
+        ax2.hist(energy[psd_mask], bins=100, color='blue')           
+        ###
+        ax2.hist(energy[mask], color='orange') #this one looks odd, the masked section is very small on the graph unlike before
+        
+            
+    plt.show()
+    exit(0)
+   
