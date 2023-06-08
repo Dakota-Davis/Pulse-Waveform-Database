@@ -15,7 +15,8 @@ def plot_examples(colormaps):
     for [ax, cmap] in zip(axs.flat, colormaps):
         psm = ax.pcolormesh(data, cmap=cmap, rasterized=True, vmin=-4, vmax=4)
         fig.colorbar(psm, ax=ax)
-    plt.show()
+    #plt.show()
+    
 
 
 path = 'colormap.txt'
@@ -41,3 +42,4 @@ for color in colors:
 #print(colors)
 newcmp = ListedColormap(colors)
 plot_examples([newcmp])     #figure out how to apply this to the heat plot
+

@@ -16,6 +16,8 @@ parser.add_argument('-p', '--pmt-used', type=str, nargs='*', help='The PMT that 
 parser.add_argument('-s', '--scintillator', type=str, nargs='*', help='The scintillator that was used for the data set')
 parser.add_argument('-l', '--histogram-xlimit', type=int, nargs=2, help='The minimum and maximum x-limit for the energy histogram')
 parser.add_argument('-z', '--show', action='store_true', help='To show or not to show all individual waveforms [ALL] or [NONE]')
+parser.add_argument('-o', '--output-file-name', help='The name of output file name for saving purposes')
+
 
 args = parser.parse_args()
 
@@ -139,7 +141,7 @@ if args.number_of_scintillators[0] == 1:
 
 	d = np.array([time,Avarray])
 	d = d.T
-	np.savetxt('data/{}/{}/Average_Waveform.txt'.format(args.pmt_used[0], args.scintillator[0]), d, delimiter=';')  
+	np.savetxt('data/{}/{}/{}_Average_Waveform.txt'.format(args.pmt_used[0], args.scintillator[0], args.output_file_name), d, delimiter=';')  
     #may need to change (above) due to file naming system changing
 
 	##########Returns/Printing for Set 1

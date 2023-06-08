@@ -154,7 +154,7 @@ if args.plot is True:
     ax1 = plt.gca()
     #plt.scatter(energy, psd, color='black')
     ###
-    plt.hist2d(energy, psd, bins=500, cmin=1, cmap='newcmp')        #appy new color map
+    plt.hist2d(energy, psd, bins=(300, 1500), cmin=1, cmap=newcmp)        #appy new color map
     cb = plt.colorbar()
     cb.set_label("Counts")
     ###
@@ -173,13 +173,14 @@ if args.plot is True:
         energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0])
         mask = psd_mask & energy_mask
 
-        #ax1.scatter(energy[mask], psd[mask], color='orange')        #this one looks fine
+        ax1.scatter(energy[mask], psd[mask], color='red', alpha=0.075, label='PSD and Energy Cuts')        #solid PSD cut marks out a lot so I changes opacity
         ###
-        ax2.hist(energy[psd_mask], bins=100, color='blue')           
+        ax2.hist(energy[psd_mask], bins=75, color='lightblue', label='PSD Cuts')           
         ###
-        ax2.hist(energy[mask], color='orange') #this one looks odd, the masked section is very small on the graph unlike before
+        ax2.hist(energy[mask], bins=5, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
         
-            
+    ax1.legend()
+    ax2.legend()
     plt.show()
-    exit(0)
+    #exit(0)
    
