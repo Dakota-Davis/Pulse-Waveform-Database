@@ -6,6 +6,7 @@ from statistics import mode, StatisticsError
 from database_functions import *
 import glob
 from make_cmp import newcmp
+from matplotlib.patches import Rectangle
 
 from argparse import ArgumentParser
 
@@ -173,7 +174,10 @@ if args.plot is True:
         energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0])
         mask = psd_mask & energy_mask
 
-        ax1.scatter(energy[mask], psd[mask], color='red', alpha=0.075, label='PSD and Energy Cuts')        #solid PSD cut marks out a lot so I changes opacity
+        #ax1.scatter(energy[mask], psd[mask], color='red', alpha=0.075, label='PSD and Energy Cuts')        #solid PSD cut marks out a lot so I changes opacity
+        w = args.energy_target[1] - args.energy_target[0]
+        h = args.psd_cut[1] - args.psd_cut[0]
+        ax1.add_patch(Rectangle((args.energy_target[0],args.psd_cut[0]), w, h, fill=False, color='red', lw=2, label='PSD and Energy Cuts'))
         ###
         ax2.hist(energy[psd_mask], bins=75, color='lightblue', label='PSD Cuts')           
         ###
