@@ -155,7 +155,7 @@ if args.plot is True:
     ax1 = plt.gca()
     #plt.scatter(energy, psd, color='black')
     ###
-    plt.hist2d(energy, psd, bins=(300, 1500), cmin=1, cmap=newcmp)        #appy new color map
+    plt.hist2d(energy, psd, bins=(300, 1500), cmin=1, cmap=newcmp)   #figure out good bins
     cb = plt.colorbar()
     cb.set_label("Counts")
     ###
@@ -165,7 +165,7 @@ if args.plot is True:
 
     plt.subplot(1,2,2) 
     ax2 = plt.gca()
-    plt.hist(energy, bins=100, color='black')
+    plt.hist(energy, bins=500, color='black') #100 is good for most but 500 works better for cd109 peaks
     plt.xlabel("Energy")
     plt.ylabel("Counts")
     
@@ -174,7 +174,8 @@ if args.plot is True:
         energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0])
         mask = psd_mask & energy_mask
 
-        #ax1.scatter(energy[mask], psd[mask], color='red', alpha=0.075, label='PSD and Energy Cuts')        #solid PSD cut marks out a lot so I changes opacity
+        ax1.axhline(y=args.psd_cut[0], c='lightblue', linestyle='-', lw=2)
+        ax1.axhline(y=args.psd_cut[1], c='lightblue', linestyle='-', lw=2, label='PSD cuts')
         w = args.energy_target[1] - args.energy_target[0]
         h = args.psd_cut[1] - args.psd_cut[0]
         ax1.add_patch(Rectangle((args.energy_target[0],args.psd_cut[0]), w, h, fill=False, color='red', lw=2, label='PSD and Energy Cuts'))

@@ -59,9 +59,9 @@ if args.histogram_xlimit is not None and len(args.histogram_xlimit) == 2:
 	hist_maxxlim = args.histogram_xlimit[1]
 
 showall = True
-if args.show is not None:
+if args.show:
 	showall = True
-if args.show is None:
+if not args.show:
 	#if args.show[0] == 'NONE':
     showall = False
 	#if args.show[0] == 'ALL':

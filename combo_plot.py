@@ -6,9 +6,9 @@ import scipy.signal as signal
 from database_functions import *
 
 
-plt.subplot(1,2,1) 
+#plt.subplot(1,2,1) 
 
-path = 'data/hamamatsu_r5800/scionix_naitl_csina/co60_1173kev_Average_Waveform.txt'
+path = 'data/hamamatsu_r5800/scionix_naitl_csina/88kev_naitl_Average_Waveform.txt'
         
 f = open(path)
 data = f.readlines()
@@ -23,70 +23,103 @@ for line in data:
         
 f.close()
 
-plt.plot(time, voltage, c='blue', label='1173kev')
+plt.plot(time, voltage, c='darkblue', label='88kev')
 
-
-path2 = 'data/hamamatsu_r5800/scionix_naitl_csina/co60_1332kev_Average_Waveform.txt'
+path = 'data/hamamatsu_r5800/scionix_naitl_csina/662kev_naitl_Average_Waveform.txt'
         
-f = open(path2)
+f = open(path)
 data = f.readlines()
 
-voltage2 = []
-time2 = []
+voltage = []
+time = []
 for line in data:
     split_line = line.split(';')
     if len(split_line) > 1:
-        time2.append(float(split_line[0]))
-        voltage2.append(float(split_line[1]))
+        time.append(float(split_line[0]))
+        voltage.append(float(split_line[1]))
+        
+f.close()
+
+plt.plot(time, voltage, c='blue',label='662kev')
+
+
+path = 'data/hamamatsu_r5800/scionix_naitl_csina/1332kev_naitl_Average_Waveform.txt'
+        
+f = open(path)
+data = f.readlines()
+
+voltage= []
+time = []
+for line in data:
+    split_line = line.split(';')
+    if len(split_line) > 1:
+        time.append(float(split_line[0]))
+        voltage.append(float(split_line[1]))
 f.close()
        
-plt.plot(time2, voltage2,c='red', label='1332kev')
-plt.axhline(y=-0.1, c='black', linestyle='-')
+plt.plot(time, voltage, c='cornflowerblue', label='1332kev')
 
+plt.axhline(y=-0.1, c='black', linestyle='-')
 plt.xlabel(r"Time [s]")
 plt.ylabel("Amplitude [V]")
 plt.title("Amplitude v. Time [NaI(Tl)]")
 plt.legend()
-#plt.show()
+plt.show()
 
-plt.subplot(1,2,2) 
+#plt.subplot(1,2,2) 
 
-path3 = 'data/hamamatsu_r5800/scionix_naitl_csina/co60_1173kev_csina_Average_Waveform.txt'
+path = 'data/hamamatsu_r5800/scionix_naitl_csina/88kev_csina_Average_Waveform.txt'
         
-f = open(path3)
+f = open(path)
 data = f.readlines()
 
-voltage3 = []
-time3 = []
+voltage = []
+time = []
 for line in data:
     split_line = line.split(';')
     if len(split_line) > 1:
-        time3.append(float(split_line[0]))
-        voltage3.append(float(split_line[1]))
-f.close()
-       
-plt.plot(time3, voltage3, label='1173kev')
-#plt.axhline(y=-0.1, c='black', linestyle='-')
-#plt.show()
-
-path4 = 'data/hamamatsu_r5800/scionix_naitl_csina/co60_1332kev_csina_Average_Waveform.txt'
+        time.append(float(split_line[0]))
+        voltage.append(float(split_line[1]))
         
-f = open(path4)
+f.close()
+
+plt.plot(time, voltage, c='firebrick', label='88kev')
+
+path = 'data/hamamatsu_r5800/scionix_naitl_csina/662kev_csina_Average_Waveform.txt'
+        
+f = open(path)
 data = f.readlines()
 
-voltage4 = []
-time4 = []
+voltage = []
+time = []
 for line in data:
     split_line = line.split(';')
     if len(split_line) > 1:
-        time4.append(float(split_line[0]))
-        voltage4.append(float(split_line[1]))
+        time.append(float(split_line[0]))
+        voltage.append(float(split_line[1]))
+        
+f.close()
+
+plt.plot(time, voltage, c='red', label='662kev')
+
+
+path = 'data/hamamatsu_r5800/scionix_naitl_csina/1332kev_csina_Average_Waveform.txt'
+        
+f = open(path)
+data = f.readlines()
+
+voltage= []
+time = []
+for line in data:
+    split_line = line.split(';')
+    if len(split_line) > 1:
+        time.append(float(split_line[0]))
+        voltage.append(float(split_line[1]))
 f.close()
        
-plt.plot(time4, voltage4, c='green', label='1332kev')
+plt.plot(time, voltage, c='lightsalmon', label='1332kev')
+
 plt.axhline(y=-0.1, c='black', linestyle='-')
-
-
 plt.xlabel(r"Time [s]")
 plt.ylabel("Amplitude [V]")
 plt.title("Amplitude v. Time [CsI(Na)]")
