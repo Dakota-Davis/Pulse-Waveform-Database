@@ -155,7 +155,7 @@ if args.plot is True:
     ax1 = plt.gca()
     #plt.scatter(energy, psd, color='black')
     ###
-    plt.hist2d(energy, psd, bins=(300, 1500), cmin=1, cmap=newcmp)   #figure out good bins
+    plt.hist2d(energy, psd, bins=(300, 1500), cmin=1, cmap=newcmp)   #figure out good bins for all/most sources?
     cb = plt.colorbar()
     cb.set_label("Counts")
     ###
@@ -165,7 +165,7 @@ if args.plot is True:
 
     plt.subplot(1,2,2) 
     ax2 = plt.gca()
-    plt.hist(energy, bins=500, color='black') #100 is good for most but 500 works better for cd109 peaks
+    plt.hist(energy, bins=100, color='black') #100 is good for most but 500 works better for cd109 peaks
     plt.xlabel("Energy")
     plt.ylabel("Counts")
     
