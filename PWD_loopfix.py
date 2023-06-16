@@ -150,6 +150,12 @@ print("PSD Flags (energy = 0): ",psd_flags)
 energy, psd = np.transpose(results)
 
 if args.plot is True:
+    """
+    plt.rcParams['font.size'] = 24 #change font size
+    plt.rcParams["legend.loc"] = 'upper right' #change legend location
+    plt.rcParams['figure.constrained_layout.use'] = True #reduce figure whitespace
+    """
+    
     plt.figure(figsize=(12, 6))
     plt.subplot(1,2,1)
     ax1 = plt.gca()
