@@ -88,7 +88,7 @@ def T90(v, t):
 
 
 		#Exponential Fit
-def Expo_Fit(v, t, s, c):
+def Expo_Fit(v, t, s, c):      #not sure if this function actually works or not
 	absvoltage = np.absolute(v)	
 	at = np.absolute(t)	
 	maxVindex = absvoltage.argmax()
