@@ -8,15 +8,16 @@ from database_functions import *
 from argparse import ArgumentParser
 
 parser = ArgumentParser(prog = 'Pulse Waveform Database Data Runner', description='This is a data runner for the Pulse Waveform Database')
+#below arg is not really used, remove and update code accordingly
 parser.add_argument('-n', '--number-of-scintillators', type=int, nargs=1, help='The number of scintillators used in the test')
-#fix or remove above arg (can do later though)
 parser.add_argument('-f', '--first-input-data',type=str, nargs='+', help='The first set of data file(s) (which file you want to use)')
 #parser.add_argument('-sid', '--second-input-data',type=str, nargs='+', help='The second set of data file(s) (which file you want to use)')
 parser.add_argument('-p', '--pmt-used', type=str, nargs='*', help='The PMT that was used for the data set')
 parser.add_argument('-s', '--scintillator', type=str, nargs='*', help='The scintillator that was used for the data set')
+#below arg is not really used, remove and update coda accordingly
 parser.add_argument('-l', '--histogram-xlimit', type=int, nargs=2, help='The minimum and maximum x-limit for the energy histogram')
-parser.add_argument('-z', '--show', action='store_true', help='To show or not to show all individual waveforms [ALL] or [NONE]')
-parser.add_argument('-o', '--output-file-name', help='The name of output file name for saving purposes')
+parser.add_argument('-z', '--show', action='store_true', help='To show or not show all individual waveforms as an overlay')
+parser.add_argument('-o', '--output-file-name', help='The name of Average Waveform output file name for saving purposes')
 
 
 args = parser.parse_args()
