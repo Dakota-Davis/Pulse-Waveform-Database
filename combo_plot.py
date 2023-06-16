@@ -86,7 +86,7 @@ f.close()
 
 plt.plot(time, voltage, c='firebrick', label='88kev')
 
-path = 'data/hamamatsu_r5800/scionix_naitl_csina/662kev_csina_Average_Waveform.txt'
+path = 'data/hamamatsu_r5800/scionix_naitl_csina/662kev_csina_2ndEventExcluded_Average_Waveform.txt'
         
 f = open(path)
 data = f.readlines()
