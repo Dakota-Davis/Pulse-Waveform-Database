@@ -124,9 +124,11 @@ if args.number_of_scintillators[0] == 1:
 			#plt.subplot(1,4,1)
 
 			plt.plot(time, voltage, alpha=0.1, color=c1)
-			
+            
 			#plt.subplot(1,4,2)
 			#Expo_Fit(voltage, time, 1, c1)
+            
+            
 		
 		#plt.subplot(1,4,4)
 		#plt.scatter(energy,psd, color=c1, label='Scint 1')
