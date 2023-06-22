@@ -172,10 +172,10 @@ plt.axvline(x=0.73, c='black', linestyle='dashed')
 
 x = [0,0.73,0.73,1.73,1.73,5]           #long gate
 y = [0.1,0.1,0.125,0.125,0.1,0.1]
-plt.plot(x,y, c='limegreen', label='long gate')
+plt.plot(x,y, c='red', label='long gate')
 x = [0,0.73,0.73,1.03,1.03,5]           #short gate
 y = [0.05,0.05,0.075,0.075,0.05,0.05]
-plt.plot(x,y, c='red', label='short gate')
+plt.plot(x,y, c='limegreen', label='short gate')
 
 plt.xlabel(r"Time [$\mu$s]")
 plt.ylabel("Amplitude [V]")
