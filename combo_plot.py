@@ -144,3 +144,45 @@ plt.xlim(0,10)
 #plt.tight_layout(pad=0)
 
 plt.show()
+
+#START ENERGY GATES PLOT
+ax = plt.gca()
+start, end = ax.get_ylim()
+ax.yaxis.set_ticks(np.arange(0.25, -0.25, -0.05)) #set y-axis start & end & step interval
+
+path = 'data/hamamatsu_r5800/scionix_naitl_csina/1332kev_naitl_Average_Waveform.txt'
+        
+f = open(path)
+data = f.readlines()
+
+voltage= []
+time = []
+for line in data:
+    split_line = line.split(';')
+    if len(split_line) > 1:
+        time.append(float(split_line[0])/1e-6)
+        voltage.append(float(split_line[1]))
+f.close()
+       
+plt.plot(time, voltage, c='cornflowerblue', label='1332kev')
+
+
+plt.axhline(y=0.0, c='black', linestyle='-')
+plt.axvline(x=0.73, c='black', linestyle='dashed')
+
+x = [0,0.73,0.73,1.73,1.73,5]           #long gate
+y = [0.1,0.1,0.125,0.125,0.1,0.1]
+plt.plot(x,y, c='limegreen', label='long gate')
+x = [0,0.73,0.73,1.03,1.03,5]           #short gate
+y = [0.05,0.05,0.075,0.075,0.05,0.05]
+plt.plot(x,y, c='red', label='short gate')
+
+plt.xlabel(r"Time [$\mu$s]")
+plt.ylabel("Amplitude [V]")
+#plt.title("Amplitude v. Time [NaI(Tl)]")
+plt.legend()
+plt.ylim(top=0.15,bottom=-0.22)
+plt.xlim(0,5)
+#plt.tight_layout(pad=0)
+
+plt.show()
