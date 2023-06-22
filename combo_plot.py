@@ -183,6 +183,5 @@ plt.ylabel("Amplitude [V]")
 plt.legend()
 plt.ylim(top=0.15,bottom=-0.22)
 plt.xlim(0,5)
-#plt.tight_layout(pad=0)
 
 plt.show()
