@@ -150,22 +150,27 @@ print("PSD Flags (energy = 0): ",psd_flags)
 energy, psd = np.transpose(results)
 
 if args.plot is True:
-    """
+    
     plt.rcParams['font.size'] = 24 #change font size
     plt.rcParams["legend.loc"] = 'upper right' #change legend location
     plt.rcParams['figure.constrained_layout.use'] = True #reduce figure whitespace
-    """
+    
+    fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
+        hspace=0., wspace=0.)           #still figuring out
     
     plt.figure(figsize=(12, 6))
     plt.subplot(1,2,1)
     ax1 = plt.gca()
     #plt.scatter(energy, psd, color='black')
     ###
-    plt.hist2d(energy, psd, bins=(300, 1500), cmin=1, cmap=newcmp)   #figure out good bins for all/most sources?
+    plt.hist2d(energy, psd, bins=(300, 1000), cmin=1, cmap=newcmp)   #figure out good bins for all/most sources?
     cb = plt.colorbar()
     cb.set_label("Counts")
     ###
     plt.ylim(0,1)
+    
+    plt.xlim(0,2000)        #for proceeedings plots
+    
     plt.xlabel("Energy")
     plt.ylabel("PSD")
 
@@ -174,6 +179,8 @@ if args.plot is True:
     plt.hist(energy, bins=100, color='black') #100 is good for most but 500 works better for cd109 peaks
     plt.xlabel("Energy")
     plt.ylabel("Counts")
+    
+    plt.xlim(0,2000)        #for proceeedings plots
     
     if args.psd_cut is not None and args.energy_target is not None:
         psd_mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
@@ -188,7 +195,7 @@ if args.plot is True:
         ###
         ax2.hist(energy[psd_mask], bins=75, color='lightblue', label='PSD Cuts')           
         ###
-        ax2.hist(energy[mask], bins=5, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
+        ax2.hist(energy[mask], bins=3, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
         
     ax1.legend()
     ax2.legend()
