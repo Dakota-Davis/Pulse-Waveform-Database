@@ -151,25 +151,41 @@ energy, psd = np.transpose(results)
 
 if args.plot is True:
     
+    ##########
     plt.rcParams['font.size'] = 24 #change font size
     plt.rcParams["legend.loc"] = 'upper right' #change legend location
-    plt.rcParams['figure.constrained_layout.use'] = True #reduce figure whitespace
+    #plt.rcParams['figure.constrained_layout.use'] = True #reduce figure whitespace
+    #plt.subplots_adjust(top=0.95,bottom=0.05,left=0.05,right=0.95,wspace=0.5)
+    #fig, ax1 = plt.subplots(constrained_layout=True)
+    #ax1.set_constrained_layout_pads(wspace=10)         
+    #fig = plt.figure(constrained_layout=True, figsize=(12, 6))  
+    ##########
     
-    fig.set_constrained_layout_pads(w_pad=2./72., h_pad=2./72.,
-        hspace=0., wspace=0.)           #still figuring out
-    
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(12, 6))    
     plt.subplot(1,2,1)
     ax1 = plt.gca()
     #plt.scatter(energy, psd, color='black')
-    ###
-    plt.hist2d(energy, psd, bins=(300, 1000), cmin=1, cmap=newcmp)   #figure out good bins for all/most sources?
+    #plt.hist2d(energy, psd, bins=(300, 1000), cmin=1, cmap=newcmp)   #figure out good bins for all/most sources?
+
+    
+    #######
+    plt.hist2d(energy, psd, bins=(300, 1000), cmin=1, cmap=newcmp, vmin=-50,vmax=150)   #figure out good bins for all/most sources?
+    #pcm = ax1.pcolormesh(x, y, z, vmin=-1,vmax=1)
+    #norm = matplotlib.colors.Normalize(vmin=0,vmax=1)
+    #plt.cm.ScalarMappable(norm=norm)
+    #fig, ax1 = plt.subplots(constrained_layout=True)
+    #fig.set_constrained_layout_pads(wspace=0./77.)     
+    #######
+    
     cb = plt.colorbar()
     cb.set_label("Counts")
-    ###
+    
     plt.ylim(0,1)
     
+    #########
     plt.xlim(0,2000)        #for proceeedings plots
+    plt.subplots_adjust(top=0.95,bottom=0.05,left=0.06,right=0.97,wspace=0.4)
+    #########
     
     plt.xlabel("Energy")
     plt.ylabel("PSD")
@@ -195,7 +211,7 @@ if args.plot is True:
         ###
         ax2.hist(energy[psd_mask], bins=75, color='lightblue', label='PSD Cuts')           
         ###
-        ax2.hist(energy[mask], bins=3, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
+        ax2.hist(energy[mask], bins=5, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
         
     ax1.legend()
     ax2.legend()

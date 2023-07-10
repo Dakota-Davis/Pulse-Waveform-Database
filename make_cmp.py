@@ -41,5 +41,4 @@ for color in colors:
     color.append(1.)                    #adds in the opacity value for the Nx4 color matrix
 #print(colors)
 newcmp = ListedColormap(colors)
-plot_examples([newcmp])     #figure out how to apply this to the heat plot
-
+plot_examples([newcmp])

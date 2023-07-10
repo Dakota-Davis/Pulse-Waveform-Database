@@ -11,11 +11,11 @@ plt.rcParams["legend.loc"] = 'lower right' #change legend location
 plt.rcParams['figure.constrained_layout.use'] = True
 ax = plt.gca()
 start, end = ax.get_ylim()
-ax.yaxis.set_ticks(np.arange(0, -0.25, -0.05)) #set y-axis start & end & step interval
+ax.yaxis.set_ticks(np.arange(0, -0.7, -0.1)) #set y-axis start & end & step interval
 
 #plt.subplot(1,2,1) 
 
-path = 'data/hamamatsu_r5800/scionix_naitl_csina/88kev_naitl_Average_Waveform.txt'
+path = 'data/hamamatsu_r12699/scionix_naitl_csina/88kev_naitl_Average_Waveform.txt'
         
 f = open(path)
 data = f.readlines()
@@ -32,7 +32,7 @@ f.close()
 
 plt.plot(time, voltage, c='darkblue', label='88kev')
 
-path = 'data/hamamatsu_r5800/scionix_naitl_csina/662kev_naitl_Average_Waveform.txt'
+path = 'data/hamamatsu_r12699/scionix_naitl_csina/662kev_naitl_Average_Waveform.txt'
         
 f = open(path)
 data = f.readlines()
@@ -50,7 +50,7 @@ f.close()
 plt.plot(time, voltage, c='blue',label='662kev')
 
 
-path = 'data/hamamatsu_r5800/scionix_naitl_csina/1332kev_naitl_Average_Waveform.txt'
+path = 'data/hamamatsu_r12699/scionix_naitl_csina/1332kev_naitl_Average_Waveform.txt'
         
 f = open(path)
 data = f.readlines()
@@ -71,7 +71,7 @@ plt.xlabel(r"Time [$\mu$s]")
 plt.ylabel("Amplitude [V]")
 #plt.title("Amplitude v. Time [NaI(Tl)]")
 plt.legend()
-plt.ylim(top=0.01,bottom=-0.22)
+plt.ylim(top=0.01,bottom=-0.7)
 plt.xlim(0,10)
 #plt.tight_layout(pad=0)
 
@@ -81,9 +81,9 @@ plt.show()
 
 ax = plt.gca()
 start, end = ax.get_ylim()
-ax.yaxis.set_ticks(np.arange(0, -0.25, -0.05))
+ax.yaxis.set_ticks(np.arange(0, -0.7, -0.1))
 
-path = 'data/hamamatsu_r5800/scionix_naitl_csina/88kev_csina_Average_Waveform.txt'
+path = 'data/hamamatsu_r12699/scionix_naitl_csina/88kev_csina_Average_Waveform.txt'
         
 f = open(path)
 data = f.readlines()
@@ -100,7 +100,7 @@ f.close()
 
 plt.plot(time, voltage, c='firebrick', label='88kev')
 
-path = 'data/hamamatsu_r5800/scionix_naitl_csina/662kev_csina_2ndEventExcluded_Average_Waveform.txt'
+path = 'data/hamamatsu_r12699/scionix_naitl_csina/662kev_csina_Average_Waveform.txt'
         
 f = open(path)
 data = f.readlines()
@@ -118,7 +118,7 @@ f.close()
 plt.plot(time, voltage, c='red', label='662kev')
 
 
-path = 'data/hamamatsu_r5800/scionix_naitl_csina/1332kev_csina_Average_Waveform.txt'
+path = 'data/hamamatsu_r12699/scionix_naitl_csina/1332kev_csina_Average_Waveform.txt'
         
 f = open(path)
 data = f.readlines()
@@ -139,18 +139,19 @@ plt.xlabel(r"Time [$\mu$s]")
 plt.ylabel("Amplitude [V]")
 #plt.title("Amplitude v. Time [CsI(Na)]")
 plt.legend()
-plt.ylim(top=0.01,bottom=-0.22)
+plt.ylim(top=0.01,bottom=-0.7)
 plt.xlim(0,10)
 #plt.tight_layout(pad=0)
 
 plt.show()
 
+"""
 #START ENERGY GATES PLOT
 ax = plt.gca()
 start, end = ax.get_ylim()
 ax.yaxis.set_ticks(np.arange(0.25, -0.25, -0.05)) #set y-axis start & end & step interval
 
-path = 'data/hamamatsu_r5800/scionix_naitl_csina/1332kev_naitl_Average_Waveform.txt'
+path = 'data/hamamatsu_r12699/scionix_naitl_csina/1332kev_naitl_Average_Waveform.txt'
         
 f = open(path)
 data = f.readlines()
@@ -185,3 +186,4 @@ plt.ylim(top=0.15,bottom=-0.22)
 plt.xlim(0,5)
 
 plt.show()
+"""
