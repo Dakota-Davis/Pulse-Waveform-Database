@@ -36,12 +36,7 @@ showall = True
 if args.show:
 	showall = True
 if not args.show:
-	#if args.show[0] == 'NONE':
     showall = False
-	#if args.show[0] == 'ALL':
-	#	showall = True
-	#if args.show[0] != 'ALL' and args.show[0] != 'NONE':
-    #parser.error('Choose to show [ALL] individual waveforms or [NONE] of them')
 
 varray = []	
 psdarray = []
@@ -91,16 +86,8 @@ for input_file in range(len(args.first_input_data)):
 
 		##########Graphing/Plots
     if showall is True:
-			
-		#plt.subplot(1,4,1)
-
+        
         plt.plot(time, voltage, alpha=0.1, color=c1)
-
-        #plt.subplot(1,4,2)
-        #Expo_Fit(voltage, time, 1, c1)  #not sure if this function actually works or not
-
-	#plt.subplot(1,4,4)
-	#plt.scatter(energy,psd, color=c1, label='Scint 1')
 
     va +=1
 
@@ -113,7 +100,6 @@ for val in varray:
 d = np.array([time,Avarray])
 d = d.T
 np.savetxt('data/{}/{}/{}_Average_Waveform.txt'.format(args.pmt_used[0], args.scintillator[0], args.output_file_name), d, delimiter=';')  
-#may need to change (above) due to file naming system changing
 
 ##########Returns/Printing for Set 1
 #print(psdarray)
@@ -141,11 +127,4 @@ plt.plot(time[T90(Avarray, time)[1]], Avarray[T90(Avarray, time)[1]], marker=">"
 plt.plot(time[T90(Avarray, time)[2]], Avarray[T90(Avarray, time)[2]], marker="<", markersize=7, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set T90 End")
 
 plt.legend()
-
-#plt.subplot(1,4,2)						#Plots the Exponential Decay of the curve
-#Expo_Fit(Avarray, time, 1, ac1)
-#plt.xlabel("Time [s]")
-#plt.ylabel("Amplitude [V]")
-#plt.title("Set Decay Rates")
-
 plt.show()
