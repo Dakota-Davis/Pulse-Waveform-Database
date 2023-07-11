@@ -202,7 +202,7 @@ if args.plot is True:
         ###
         ax2.hist(energy[psd_mask], bins=75, color='lightblue', label='PSD Cuts')           
         ###
-        ax2.hist(energy[mask], bins=3, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
+        ax2.hist(energy[mask], bins=5, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
         
     ax1.legend()
     ax2.legend()
