@@ -165,7 +165,7 @@ if args.plot is True:
 
     
     #######
-    plt.hist2d(energy, psd, bins=(300, 1000), cmin=1, cmap=newcmp, vmin=-50,vmax=150)   #for more colorful psd plot
+    plt.hist2d(energy, psd, bins=(300, 1000), cmin=1, cmap=newcmp, vmin=0,vmax=100)   #for more colorful psd plot
     #######
     
     cb = plt.colorbar()
@@ -198,11 +198,11 @@ if args.plot is True:
         ax1.axhline(y=args.psd_cut[1], c='lightblue', linestyle='-', lw=2, label='PSD cuts')
         w = args.energy_target[1] - args.energy_target[0]
         h = args.psd_cut[1] - args.psd_cut[0]
-        ax1.add_patch(Rectangle((args.energy_target[0],args.psd_cut[0]), w, h, fill=False, color='red', lw=2, label='PSD and Energy Cuts'))
+        ax1.add_patch(Rectangle((args.energy_target[0],args.psd_cut[0]), w, h, fill=False, color='red', lw=2, zorder=5, label='PSD and Energy Cuts'))
         ###
         ax2.hist(energy[psd_mask], bins=75, color='lightblue', label='PSD Cuts')           
         ###
-        ax2.hist(energy[mask], bins=5, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
+        ax2.hist(energy[mask], bins=3, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
         
     ax1.legend()
     ax2.legend()
