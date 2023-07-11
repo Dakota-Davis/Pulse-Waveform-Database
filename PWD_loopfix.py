@@ -175,7 +175,7 @@ if args.plot is True:
     
     #########
     plt.xlim(0,2000)        #for proceeedings plots
-    plt.subplots_adjust(top=0.95,bottom=0.05,left=0.06,right=0.97,wspace=0.4)   #adjust white space
+    plt.subplots_adjust(top=0.95,bottom=0.1,left=0.06,right=0.97,wspace=0.4)   #adjust white space
     #########
     
     plt.xlabel("Energy")
