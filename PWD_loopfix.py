@@ -19,7 +19,7 @@ parser.add_argument('-p', '--pmt', help='Which Photomultiplier Tube was used', r
 parser.add_argument('-s', '--scintillator', help='Type of scintillator(s) used', required=True)
 parser.add_argument('-c', '--psd-cut', type=float, nargs=2, help='The start and first end of the PSD cut range')
 parser.add_argument('-y', '--source', help='The (gamma-ray) source element/isotope used (e.g. Cs137)', required=True)
-parser.add_argument('-o', '--output-scintillator', help='The name of output scintillator for saving purposes')
+parser.add_argument('-o', '--output-file-name', help='The name of output file(s) for saving purposes')
 parser.add_argument('-b', '--baseline', default=100, type=int, help='Number of samples to use when computing waveform baseline.')
 parser.add_argument('-e', '--energy-target', type=int, nargs=2, help='The Energy Target Range in keV')
 parser.add_argument('-w', '--number-of-waveforms', type=int, help='The number of waveforms you would like saved')
@@ -65,7 +65,7 @@ if args.list_available_input_files:
 dir = "raw/%s/%s/" %(args.pmt, args.scintillator)
 path = os.path.join(dir, args.source + ".bin")
 
-scint_out = args.output_scintillator if args.output_scintillator is not None else args.scintillator
+scint_out = args.output_file_name if args.output_file_name is not None else args.scintillator
 vfilename = args.source + '_data_' + scint_out # base output file name for waveforms
 vfilename = 'data/{}/{}/{}_%05d.txt'.format(args.pmt, args.scintillator, vfilename) 
 
