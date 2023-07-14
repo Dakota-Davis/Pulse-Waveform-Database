@@ -8,7 +8,7 @@ from database_functions import *
 from argparse import ArgumentParser
 
 parser = ArgumentParser(prog = 'Pulse Waveform Database Data Runner', description='This is a data runner for the Pulse Waveform Database')
-parser.add_argument('-f', '--first-input-data',type=str, nargs='+', help='The first set of data file(s) (which file you want to use)')
+parser.add_argument('-i', '--input-data',type=str, nargs='+', help='The set of data file(s) (which file you want to use)')
 parser.add_argument('-p', '--pmt-used', type=str, nargs='*', help='The PMT that was used for the data set')
 parser.add_argument('-s', '--scintillator', type=str, nargs='*', help='The scintillator that was used for the data set')
 parser.add_argument('-z', '--show', action='store_true', help='To show or not show all individual waveforms as an overlay')
@@ -17,7 +17,7 @@ parser.add_argument('-o', '--output-file-name', help='The name of Average Wavefo
 
 args = parser.parse_args()
 
-if args.first_input_data is None:
+if args.input_data is None:
 	parser.error('No data specified. . . Please specify the data file to be run')
 
 if args.pmt_used is None:
@@ -53,9 +53,9 @@ c2 = 'red'
 ac1 = 'orangered'
 ac2 = 'purple'
 
-for input_file in range(len(args.first_input_data)):
+for input_file in range(len(args.input_data)):
 
-    path = '{}'.format(args.first_input_data[input_file])
+    path = '{}'.format(args.input_data[input_file])
         
     f = open(path)
     data = f.readlines()
@@ -94,7 +94,7 @@ for input_file in range(len(args.first_input_data)):
 Avarray = []
 Current = []
 for val in varray:
-	Avarray.append(val/len(args.first_input_data))
+	Avarray.append(val/len(args.input_data))
 	Current.append(val/50)		
 
 d = np.array([time,Avarray])
