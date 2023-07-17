@@ -212,8 +212,9 @@ if args.plot is True:
     plt.xlabel("Energy")
     plt.ylabel("Counts")
     
+    #######
     plt.xlim(0,2000)        #for proceeedings plots
-    
+    #######
     if args.psd_cut is not None and args.energy_target is not None:
         psd_mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
         energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0])
@@ -227,7 +228,7 @@ if args.plot is True:
         ###
         ax2.hist(energy[psd_mask], bins=200, color='lightblue', label='PSD Cuts')  #75 looks good in most graphs but 200 is a bit more detailed         
         ###
-        ax2.hist(energy[mask], bins=5, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
+        ax2.hist(energy[mask], bins=5, color='red', label='PSD and Energy Cuts')
         
     ax1.legend()
     ax2.legend()
