@@ -200,7 +200,7 @@ if args.plot is True:
         h = args.psd_cut[1] - args.psd_cut[0]
         ax1.add_patch(Rectangle((args.energy_target[0],args.psd_cut[0]), w, h, fill=False, color='red', lw=2, zorder=5, label='PSD and Energy Cuts'))
         ###
-        ax2.hist(energy[psd_mask], bins=200, color='lightblue', label='PSD Cuts')           
+        ax2.hist(energy[psd_mask], bins=200, color='lightblue', label='PSD Cuts')  #75 looks good in most graphs but 200 is a bit more detailed         
         ###
         ax2.hist(energy[mask], bins=5, color='red', label='PSD and Energy Cuts') #may want to play around with the bin sizes, or leave it to auto-bin
         
