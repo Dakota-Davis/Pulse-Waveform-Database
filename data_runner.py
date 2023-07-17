@@ -1,8 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-from scipy.signal import lfilter
-import scipy.signal as signal
 from database_functions import *
 
 from argparse import ArgumentParser
