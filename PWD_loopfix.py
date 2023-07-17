@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from statistics import mode, StatisticsError
 from database_functions import *
 import glob
-from make_cmp import newcmp
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 from matplotlib.patches import Rectangle
 
 from argparse import ArgumentParser
@@ -150,6 +150,31 @@ print("PSD Flags (energy = 0): ",psd_flags)
 energy, psd = np.transpose(results)
 
 if args.plot is True:
+    
+    ##### COLORMAP #####
+    path = 'colormap.txt'
+
+    f = open(path)
+    N = f.readline()
+    #print(N)
+
+    colors = []
+    for line in f.readlines():
+        l = line.rstrip()
+        #print(l)
+        line_arr = l.split(' ')  #makes array of strings
+        #print(line_arr)
+    
+        del line_arr[0]
+        colors.append(line_arr)  #makes color array
+    #print(colors)  
+    for color in colors:
+        for c in range(len(color)):
+            color[c] = float(color[c])      #makes rgb pixel intensity values floats
+        color.append(1.)                    #adds in the opacity value for the Nx4 color matrix
+    #print(colors)
+    newcmp = ListedColormap(colors)    #this will make the colormap for the psd plot
+    ##### COLORMAP #####
     
     ##########
     plt.rcParams['font.size'] = 24 #change font size
