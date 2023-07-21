@@ -1,127 +1,237 @@
+import os
+import struct
 import numpy as np
 import matplotlib.pyplot as plt
+from statistics import mode, StatisticsError
 from database_functions import *
+import glob
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from matplotlib.patches import Rectangle
 
 from argparse import ArgumentParser
 
-parser = ArgumentParser(prog = 'Pulse Waveform Database Data Runner', description='This is a data runner for the Pulse Waveform Database')
-parser.add_argument('-i', '--input-data',type=str, nargs='+', help='The set of data file(s) (which file you want to use)')
-parser.add_argument('-p', '--pmt-used', type=str, nargs='*', help='The PMT that was used for the data set')
-parser.add_argument('-s', '--scintillator', type=str, nargs='*', help='The scintillator that was used for the data set')
-parser.add_argument('-z', '--show', action='store_true', help='To show or not show all individual waveforms as an overlay')
-parser.add_argument('-o', '--output-file-name', help='The name of Average Waveform output file name for saving purposes')
+vres = 2.0 / (2**14 -1) # voltage resolution in volts
+tres = 4e-9             # time resolution in seconds
 
+parser = ArgumentParser(prog = 'Pulse Waveform Database', description='This is a database for scintillatior pulse waveforms for gamma-ray astronomy.')
+parser.add_argument('-a', '--add', help='The file (which file you want to use as data)')
+parser.add_argument('-p', '--pmt', help='Which Photomultiplier Tube was used', required=True)
+parser.add_argument('-s', '--scintillator', help='Type of scintillator(s) used', required=True)
+parser.add_argument('-c', '--psd-cut', type=float, nargs=2, help='The start and first end of the PSD cut range')
+parser.add_argument('-y', '--source', help='The (gamma-ray) source element/isotope used (e.g. Cs137)', required=True)
+parser.add_argument('-o', '--output-file-name', help='The name of output file(s) for saving purposes')
+parser.add_argument('-b', '--baseline', default=100, type=int, help='Number of samples to use when computing waveform baseline.')
+parser.add_argument('-e', '--energy-target', type=int, nargs=2, help='The Energy Target Range in keV')
+parser.add_argument('-w', '--number-of-waveforms', type=int, help='The number of waveforms you would like saved')
+parser.add_argument('-l', '--list-available-input-files', action='store_true', help='Show available input and currently saved output files')
+parser.add_argument('-x', '--plot', action='store_true', help='Plot psd v. energy to infom psd cuts and energy selection')
+#parser.add_argument('-strip', '--strip_array', action='store_true', help='strip waveform from array for smaller files and outside use')
 
 args = parser.parse_args()
 
-if args.input_data is None:
-	parser.error('No data specified. . . Please specify the data file to be run')
+if args.add is not None:
+    dir = "raw/%s/%s/" %(args.pmt, args.scintillator)  #directory name
+    print(dir)
+    print("\n")
+    path = os.path.join(dir, args.source + ".bin")        #will use .bin files later
+    os.system("mkdir -p " + dir)                              #makes directory (if it doesn't exist)
+    os.system("cp '%s' '%s'" %(args.add, path))                  #copies --add file to path
+    os.system("ls raw/%s/%s/" %(args.pmt, args.scintillator))     #lists file in directory (just to check)
 
-if args.pmt_used is None:
-	parser.error('No PMT specified. . . Please specify the PMT(s) used')
-if args.pmt_used is not None:
-		if len(args.pmt_used) not in (1,2):
-			parser.error('Too many PMTs specified. . . Please specify a value between 1 and 2')
+#Just some prints to help display what the user has specified    
+print("\nSelected File: ",args.add)
+print("PMT Used: ",args.pmt)
+print("Scintillator(s) Used: ",args.scintillator)
+print("PSD Cut Range: ",args.psd_cut)
+print("Energy Target Range: ",args.energy_target)
+print("Gamma-ray Source: ",args.source)
 
-if args.scintillator is None:
-	parser.error('No scintillator(s) specified. . . Please specify the scintillator(s) used')
+
+if args.list_available_input_files:
+    glob_paths = sorted(glob.glob("raw/*/*/*"))
+    print("\nAvailable Input Data:")
+
+    for path in glob_paths:
+        print("File Path:",path)
+        print("Data File:",path.split('/')[-1])
+        
+    glob_paths = glob.glob("data/*/*/*")
+    print("\nCurrently Saved Output Data Files:")
+    
+    for path in glob_paths:
+        print(path)
+        #print("Data File:",path.split('/')[-1])
+
+dir = "raw/%s/%s/" %(args.pmt, args.scintillator)
+path = os.path.join(dir, args.source + ".bin")
+
+scint_out = args.output_file_name if args.output_file_name is not None else args.scintillator
+vfilename = args.source + '_data_' + scint_out # base output file name for waveforms
+vfilename = 'data/{}/{}/{}_%05d.txt'.format(args.pmt, args.scintillator, vfilename) 
+
+# added this back so it would have a place to save files and not break
 if args.scintillator is not None:
-		if len(args.scintillator) not in (1,2):
-			parser.error('Too many scintillators specified. . . Please specify a value between 1 and 2')
+    out_dir = "data/%s/%s/" %(args.pmt, args.scintillator)  #output directory name
+    print(out_dir)
+    print("\n")
+    path = os.path.join(dir, args.source + ".bin")
+    os.system("mkdir -p " + out_dir)            #makes the output directory
+    
+# open the file
+f = open(path, 'rb')
 
-showall = True
-if args.show:
-	showall = True
-if not args.show:
-    showall = False
-
-varray = []	
-psdarray = []
-varray2 = []	
-psdarray2 = []
-va = -1
-va2 = -1
-
-energy_array = []
-energy2_array = []
-
-c1 = 'lightblue'
-c2 = 'red'
-ac1 = 'orangered'
-ac2 = 'purple'
-
-for input_file in range(len(args.input_data)):
-
-    path = '{}'.format(args.input_data[input_file])
+# loop to read file
+cnt = 0 # number of events read from file
+nout = 0 # number of waveforms output
+psd_flags = 0 # number of events with psd NaN
+results = [] # stored (energy, psd) results for each event
+saved_results = []
+while True:
+    board = f.read(2)
+    if len(board) == 0:
+        break
+            
+    board = struct.unpack('H',board)[0]
+    channel = struct.unpack('H',f.read(2))[0]
+    timestamp = struct.unpack('Q',f.read(8))[0]
+    energy = struct.unpack('H',f.read(2))[0]
+    energy_short = struct.unpack('H',f.read(2))[0]
+    flags = struct.unpack('I',f.read(4))[0]
+    nsample = struct.unpack('I',f.read(4))[0]
+    samples = struct.unpack(nsample * 'H', f.read(2 * nsample))
         
+    voltage = np.array(samples) * vres # Conversion from 2V range using 14 bit digitizer
+    time = tres * np.arange(voltage.size)       # Times of each voltage sample are seperated by 4 nanoseconds
+        
+    # prevents divide by zero
+    if energy == 0:
+        psd = 0.
+        psd_flags += 1
+    else:
+        psd = float(energy - energy_short) / float(energy)
+
+    results.append([energy, psd])
+        
+    cnt += 1
+    print(cnt)
+        
+    if args.psd_cut is not None and args.energy_target is not None and nout != args.number_of_waveforms:
+            
+        # Both psd and energy cuts for sorting data
+        psd_selected = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
+        energy_selected = (energy < args.energy_target[1]) & (energy > args.energy_target[0]) 
+            
+        if psd_selected and energy_selected:
+            saved_results.append([energy, psd])
+
+            # calculate baseline subtracted voltage
+            v = np.array(samples) * vres
+            baseline = v[:args.baseline].sum() / args.baseline
+            v -= baseline
+
+            # write the file
+            with open(vfilename % (nout + 1), 'w') as op:
+                op.write("%.6e %.6e\n" % (energy, psd))
+                for i in range(v.size):
+                    op.write("%.6e %.6e\n" % (i * tres, v[i]))
+            op.close()
+
+            nout += 1
+            print("Waveform [",nout,"] of [",args.number_of_waveforms,"] . . . Saved")
+            #if nout == 100:
+            #    break
+
+    # END if (psd_cut and energy_target)
+
+    #if (cnt > 5000): break
+f.close()
+print("PSD Flags (energy = 0): ",psd_flags)
+
+energy, psd = np.transpose(results)
+
+if args.plot is True:
+    
+    ##### COLORMAP #####
+    path = 'colormap.txt'
+
     f = open(path)
-    data = f.readlines()
+    N = f.readline()
+    #print(N)
 
-    voltage = []
-    time = []
-    for line in data:
-	    split_line = line.split(' ')
-	    if len(split_line) > 1:
-       		time.append(float(split_line[0]))
-	        voltage.append(float(split_line[1]))
+    colors = []
+    for line in f.readlines():
+        l = line.rstrip()
+        #print(l)
+        line_arr = l.split(' ')  #makes array of strings
+        #print(line_arr)
+    
+        del line_arr[0]
+        colors.append(line_arr)  #makes color array
+    #print(colors)  
+    for color in colors:
+        for c in range(len(color)):
+            color[c] = float(color[c])      #makes rgb pixel intensity values floats
+        color.append(1.)                    #adds in the opacity value for the Nx4 color matrix
+    #print(colors)
+    newcmp = ListedColormap(colors)    #this will make the colormap for the psd plot
+    ##### COLORMAP #####
+    
+    ##########
+    plt.rcParams['font.size'] = 24 #change font size
+    plt.rcParams["legend.loc"] = 'upper right' #change legend location
+    #plt.rcParams['figure.constrained_layout.use'] = True    #reduce figure whitespace 
+    ##########
+    
+    plt.figure(figsize=(12, 6))    
+    plt.subplot(1,2,1)
+    ax1 = plt.gca()
+    #plt.scatter(energy, psd, color='black')
+    #plt.hist2d(energy, psd, bins=(300, 1000), cmin=1, cmap=newcmp)   #figure out good bins for all/most sources?
 
-    energy = (float(time[0]))
-    psd = (float(voltage[0]))
-    time = np.delete(time, 0, 0)
-    voltage = np.delete(voltage, 0, 0)
+    
+    #######
+    plt.hist2d(energy, psd, bins=(300, 1000), cmin=1, cmap=newcmp, vmin=0,vmax=100)   #for more colorful psd plot
+    #######
+    
+    cb = plt.colorbar()
+    cb.set_label("Counts")
+    
+    plt.ylim(0,1)
+    
+    #########
+    plt.xlim(0,2000)        #for proceeedings plots
+    plt.subplots_adjust(top=0.95,bottom=0.1,left=0.06,right=0.97,wspace=0.4)   #adjust white space
+    #########
+    
+    plt.xlabel("Energy")
+    plt.ylabel("PSD")
 
-    #print("PSD: ",psd," ENERGY: ",energy)
+    plt.subplot(1,2,2) 
+    ax2 = plt.gca()
+    plt.hist(energy, bins=100, color='black') #100 is good for most but 500 works better for cd109 peaks
+    plt.xlabel("Energy")
+    plt.ylabel("Counts")
+    
+    #######
+    plt.xlim(0,2000)        #for proceeedings plots
+    #######
+    if args.psd_cut is not None and args.energy_target is not None:
+        psd_mask = (psd < args.psd_cut[1]) & (psd > args.psd_cut[0])
+        energy_mask = (energy < args.energy_target[1]) & (energy > args.energy_target[0])
+        mask = psd_mask & energy_mask
 
-    for b in range(len(voltage)):				#Automates size of varray for Average voltage values (Avarray)
-        if va < 0:
-            varray.append(voltage[b])
-        if va >= 0:
-            varray[b] += voltage[b]
-    energy_array.append(energy)			#Appends energy to array of all energies
-
-    psdarray.append(psd)
-
-		##########Graphing/Plots
-    if showall is True:
+        ax1.axhline(y=args.psd_cut[0], c='lightblue', linestyle='-', lw=2)
+        ax1.axhline(y=args.psd_cut[1], c='lightblue', linestyle='-', lw=2, label='PSD cuts')
+        w = args.energy_target[1] - args.energy_target[0]
+        h = args.psd_cut[1] - args.psd_cut[0]
+        ax1.add_patch(Rectangle((args.energy_target[0],args.psd_cut[0]), w, h, fill=False, color='red', lw=2, zorder=5, label='PSD and Energy Cuts'))
+        ###
+        ax2.hist(energy[psd_mask], bins=200, color='lightblue', label='PSD Cuts')  #75 looks good in most graphs but 200 is a bit more detailed         
+        ###
+        ax2.hist(energy[mask], bins=5, color='red', label='PSD and Energy Cuts')
         
-        plt.plot(time, voltage, alpha=0.1, color=c1)
-
-    va +=1
-
-Avarray = []
-Current = []
-for val in varray:
-	Avarray.append(val/len(args.input_data))
-	Current.append(val/50)		
-
-d = np.array([time,Avarray])
-d = d.T
-np.savetxt('data/{}/{}/{}_Average_Waveform.txt'.format(args.pmt_used[0], args.scintillator[0], args.output_file_name), d, delimiter=';')  
-
-##########Returns/Printing for Set 1
-#print(psdarray)
-print("Super-Set PSD Average: " ,Average(psdarray)) #returns PSD average for cut 1
-
-print("Area under the curve of Super-Set 1: " ,Area_under_Curve(Current, time), "Coulombs")
-
-print("Rise Time for Super-Set 1: ",Rise_Time(Avarray, time), " seconds")	#returns rise time (between 5% and peak voltage)
-print("Fall Time for Super-Set 1: ",Fall_Time(Avarray, time), " seconds")
-
-print("The T90 for Super-Set 1: ",T90(Avarray, time)[0], "seconds")
-#print("T90 Check: ",t90(Avarray,time))
-#print("Original T90 Method: ",t_90(Avarray, time)[0])
-
-##########Graphing for Set 1
-
-#plt.subplot(1,4,1)						#Plots average voltage v. time
-plt.plot(time, Avarray, label='Super-Set 1 Average Curve')#,label='PSD Average: %.6e\nAuC: %.6e\nRise Time: %.6e\nFall Time: %.6e\nAverage T90: %.4e'%(Average(psdarray),Area_under_Curve(Current, time),Rise_Time(Avarray, time),Fall_Time(Avarray, time),T90(Avarray, time)[0]))
-plt.xlabel(r"Time [s]")
-plt.ylabel("Amplitude [V]")
-plt.title("Amplitude v. Time")
-
-##These Plot Markers for the T90 of the averaged curve##
-plt.plot(time[T90(Avarray, time)[1]], Avarray[T90(Avarray, time)[1]], marker=">", markersize=7, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set T90 Start")
-plt.plot(time[T90(Avarray, time)[2]], Avarray[T90(Avarray, time)[2]], marker="<", markersize=7, markeredgecolor="black", markerfacecolor="yellow", label="Super-Set T90 End")
-
-plt.legend()
-plt.show()
+    ax1.legend()
+    ax2.legend()
+    plt.show()
+    #exit(0)
+    
