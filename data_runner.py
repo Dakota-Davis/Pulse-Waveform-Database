@@ -203,13 +203,13 @@ if args.plot is True:
     plt.subplots_adjust(top=0.95,bottom=0.1,left=0.06,right=0.97,wspace=0.4)   #adjust white space
     #########
     
-    plt.xlabel("Energy")
+    plt.xlabel("Energy Proxy")
     plt.ylabel("PSD")
 
     plt.subplot(1,2,2) 
     ax2 = plt.gca()
     plt.hist(energy, bins=100, color='black') #100 is good for most but 500 works better for cd109 peaks
-    plt.xlabel("Energy")
+    plt.xlabel("Energy Proxy")
     plt.ylabel("Counts")
     
     #######
@@ -226,7 +226,7 @@ if args.plot is True:
         h = args.psd_cut[1] - args.psd_cut[0]
         ax1.add_patch(Rectangle((args.energy_target[0],args.psd_cut[0]), w, h, fill=False, color='red', lw=2, zorder=5, label='PSD and Energy Cuts'))
         ###
-        ax2.hist(energy[psd_mask], bins=200, color='lightblue', label='PSD Cuts')  #75 looks good in most graphs but 200 is a bit more detailed         
+        ax2.hist(energy[psd_mask], bins=75, color='lightblue', label='PSD Cuts')  #75 looks good in most graphs but 200 is a bit more detailed         
         ###
         ax2.hist(energy[mask], bins=5, color='red', label='PSD and Energy Cuts')
         
