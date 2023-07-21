@@ -25,13 +25,13 @@ if not args.show:
 
 varray = []	
 psdarray = []
-varray2 = []	
-psdarray2 = []
+#varray2 = []	
+#psdarray2 = []
 va = -1
 va2 = -1
 
 energy_array = []
-energy2_array = []
+#energy2_array = []
 
 c1 = 'lightblue'
 c2 = 'red'
