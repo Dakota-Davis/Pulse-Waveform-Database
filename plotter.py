@@ -4,10 +4,10 @@ from database_functions import *
 
 from argparse import ArgumentParser
 
-parser = ArgumentParser(prog = 'Pulse Waveform Database Data Runner', description='This is a data runner for the Pulse Waveform Database')
+parser = ArgumentParser(prog = 'Pulse Waveform Database Plotter', description='This is a plotter for the Pulse Waveform Database')
 parser.add_argument('-i', '--input-data',type=str, nargs='+', help='The set of data file(s) (which file you want to use)')
-parser.add_argument('-p', '--pmt-used', type=str, nargs='*', help='The PMT that was used for the data set')
-parser.add_argument('-s', '--scintillator', type=str, nargs='*', help='The scintillator that was used for the data set')
+parser.add_argument('-p', '--pmt-used', type=str, nargs=1, help='The PMT that was used for the data set')
+parser.add_argument('-s', '--scintillator', type=str, nargs=1, help='The scintillator that was used for the data set')
 parser.add_argument('-z', '--show', action='store_true', help='To show or not show all individual waveforms as an overlay')
 parser.add_argument('-o', '--output-file-name', help='The name of Average Waveform output file name for saving purposes')
 
@@ -16,18 +16,6 @@ args = parser.parse_args()
 
 if args.input_data is None:
 	parser.error('No data specified. . . Please specify the data file to be run')
-
-if args.pmt_used is None:
-	parser.error('No PMT specified. . . Please specify the PMT(s) used')
-if args.pmt_used is not None:
-		if len(args.pmt_used) not in (1,2):
-			parser.error('Too many PMTs specified. . . Please specify a value between 1 and 2')
-
-if args.scintillator is None:
-	parser.error('No scintillator(s) specified. . . Please specify the scintillator(s) used')
-if args.scintillator is not None:
-		if len(args.scintillator) not in (1,2):
-			parser.error('Too many scintillators specified. . . Please specify a value between 1 and 2')
 
 showall = True
 if args.show:

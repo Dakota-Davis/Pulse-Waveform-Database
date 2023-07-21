@@ -13,7 +13,7 @@ from argparse import ArgumentParser
 vres = 2.0 / (2**14 -1) # voltage resolution in volts
 tres = 4e-9             # time resolution in seconds
 
-parser = ArgumentParser(prog = 'Pulse Waveform Database', description='This is a database for scintillatior pulse waveforms for gamma-ray astronomy.')
+parser = ArgumentParser(prog = 'Pulse Waveform Database', description='This is a data runner for the database of scintillatior pulse waveforms for gamma-ray astronomy.')
 parser.add_argument('-a', '--add', help='The file (which file you want to use as data)')
 parser.add_argument('-p', '--pmt', help='Which Photomultiplier Tube was used', required=True)
 parser.add_argument('-s', '--scintillator', help='Type of scintillator(s) used', required=True)
